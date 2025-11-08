@@ -126,21 +126,20 @@
             animation: breathe 8s ease-in-out infinite;
         }
         .breather-circle:nth-child(2) { animation-delay: -4s; opacity: 0.7; }
+        
+        /* --- NEUE ÄNDERUNG --- */
+        /* Die Animation für den Text wird jetzt von JS gesteuert, nicht mehr von CSS keyframes */
         #breath-text {
             font-size: 1.5rem; font-weight: 500; z-index: 3;
-            animation: breath-text 8s ease-in-out infinite;
+            /* 'animation' Eigenschaft entfernt */
         }
         @keyframes breathe {
             0%   { transform: scale(0.5); opacity: 0.4; }
             50%  { transform: scale(1.0); opacity: 0.9; }
             100% { transform: scale(0.5); opacity: 0.4; }
         }
-        @keyframes breath-text-de {
-            0%   { content: "Einatmen..."; } 50%  { content: "Ausatmen..."; } 100% { content: "Einatmen..."; }
-        }
-        @keyframes breath-text-en {
-            0%   { content: "Breathe in..."; } 50%  { content: "Breathe out..."; } 100% { content: "Breathe in..."; }
-        }
+        /* Keyframes für breath-text-de und breath-text-en entfernt, da sie nicht funktionierten */
+        /* --- ENDE ÄNDERUNG --- */
         
         #distraction-text-container { height: 60px; display: flex; align-items: center; justify-content: center; margin-top: 10px; }
         #distraction-text { font-size: 1.1rem; font-style: italic; color: #ccc; animation: fadeIn 1s; }
@@ -218,7 +217,9 @@
     
     <div id="app">
         <div class="phase active" id="phase-1">
-            <h1 id="h1-title">Reset</h1> <p id="p-lang-select" style="font-size: 1rem; margin-bottom: 10px;">Sprache:</p>
+            <h1 id="h1-title">Reset</h1>
+            
+            <p id="p-lang-select" style="font-size: 1rem; margin-bottom: 10px;">Sprache:</p>
             <select id="lang-select">
                 <option value="de">🇩🇪 Deutsch</option>
                 <option value="en">🇬🇧 English</option>
@@ -226,10 +227,10 @@
             
             <p id="p-choose-env" style="font-size: 1rem; margin-bottom: 10px; margin-top: 20px;">Wähle deine immersive Umgebung:</p>
             <select id="scenario-select">
-                <option value="kosmos">🌌 Kosmos (Tiefenraum)</option>
-                <option value="natur">🌲 Natur (Sonnige Waldlichtung)</option>
-                <option value="wolken">☁️ Wolken (Volumetrisch)</option>
-                <option value="white-room">⚪ White Room (Fließende Formen)</option>
+                <option value="kosmos">🌌 Kosmos</option>
+                <option value="natur">🌲 Natur</option>
+                <option value="wolken">☁️ Wolken</option>
+                <option value="white-room">⚪ White Room</option>
             </select>
             
             <p id="p-what-thought" style="margin-top: 20px;">Welcher Gedanke hält dich fest?</p>
@@ -248,8 +249,8 @@
             <div id="breather-container">
                 <div class="breather-circle"></div>
                 <div class="breather-circle"></div>
-                <span id="breath-text">Einatmen...</span>
-            </div>
+                <span id="breath-text"></span>
+                </div>
             <div id="distraction-text-container">
                 <p id="distraction-text">Konzentriere dich nur auf den Rhythmus.</p>
             </div>
@@ -298,12 +299,18 @@
         let distractionInterval;
         let currentLang = 'de';
         
+        // --- NEUE ÄNDERUNG ---
+        // Variable für das Atem-Text-Intervall
+        let breathInterval = null;
+        // --- ENDE ÄNDERUNG ---
+        
         let currentDistractionMessages = [];
         let currentPerspectiveQuestions = [];
 
+        // --- NEUE ÄNDERUNG: Listen erweitert ---
         const translations = {
             'de': {
-                title: "Reset", // GEÄNDERT
+                title: "Reset",
                 langSelect: "Sprache:",
                 chooseEnv: "Wähle deine immersive Umgebung:",
                 whatThought: "Welcher Gedanke hält dich fest?",
@@ -315,17 +322,24 @@
                 phase5Main: "Reset beendet.",
                 phase5Sub: "Du hast den Fokus zurück.",
                 restartButton: "Erneut starten",
-                breathTextAnim: "breath-text-de",
-                perspectiveQuestions: [
+                // breathTextAnim entfernt, da es jetzt über JS gesteuert wird
+                perspectiveQuestions: [ // Auf 14 erweitert
                     "Wird dieser Gedanke in 3 Monaten noch wichtig sein?", 
                     "Wird er in 3 Jahren noch wichtig sein?", 
                     "Was würdest du einem Freund sagen, der diesen Gedanken hat?", 
                     "Ist dies eine Tatsache oder deine Interpretation?", 
                     "Kannst du diesen Gedanken zu 100% als wahr beweisen?", 
                     "Ist dieser Gedanke eine Brücke oder eine Mauer?", 
-                    "Was wäre, wenn dieser Gedanke nur eine Wolke ist, die vorüberzieht?"
+                    "Was wäre, wenn dieser Gedanke nur eine Wolke ist, die vorüberzieht?",
+                    "Wie fühlt sich dieser Gedanke in deinem Körper an?",
+                    "Ist dieser Gedanke im Moment nützlich für dich?",
+                    "Welche Emotion steckt wirklich dahinter?",
+                    "Was ist das Schlimmste, was passieren könnte? Und wie wahrscheinlich ist das?",
+                    "Was ist die *eine* Sache, die du *jetzt* kontrollieren kannst?",
+                    "Hat dir dieser Gedanke (oder ein ähnlicher) schon einmal geholfen?",
+                    "Wessen Stimme hörst du da eigentlich in deinem Kopf?"
                 ],
-                distractionMessages: [
+                distractionMessages: [ // Auf 40 erweitert
                     "In den letzten 2 Minuten wurden über 500.000 Kinder geboren.",
                     "In dieser Sekunde sind 100 Blitze auf der Erde eingeschlagen.",
                     "Dein Herz hat in der letzten Minute ~70 Mal geschlagen, ohne dass du darüber nachdenken musstest.",
@@ -353,11 +367,23 @@
                     "Die meisten Atome in deinem Körper sind älter als das Sonnensystem.",
                     "Es gibt mehr mögliche Züge im Schach als Atome im beobachtbaren Universum.",
                     "Die Milchstraße ist nur eine von geschätzt 2 Billionen Galaxien.",
-                    "Wir wissen mehr über den Weltraum als über die Tiefsee."
+                    "Wir wissen mehr über den Weltraum als über die Tiefsee.",
+                    "Eine Giraffe hat nur sieben Halswirbel, genau wie ein Mensch.",
+                    "Das menschliche Gehirn erzeugt etwa 20 Watt Strom.",
+                    "Die Antarktis ist die größte Wüste der Welt.",
+                    "Ein Oktopus hat drei Herzen.",
+                    "Die schnellste Windgeschwindigkeit, die je auf der Erde gemessen wurde, betrug 408 km/h.",
+                    "Fledermäuse sind die einzigen Säugetiere, die fliegen können.",
+                    "Ein Blauwal-Herz ist so groß wie ein kleines Auto.",
+                    "In der Schweiz ist es illegal, nur ein Meerschweinchen zu halten.",
+                    "Der Eiffelturm 'wächst' im Sommer um bis zu 15 cm.",
+                    "Ein Tag auf der Venus ist länger als ein Jahr auf der Venus.",
+                    "Einige Schildkröten können durch ihren Hintern atmen.",
+                    "Der 'Geruch von Regen' wird Geosmin genannt."
                 ]
             },
             'en': {
-                title: "Reset", // GEÄNDERT
+                title: "Reset",
                 langSelect: "Language:",
                 chooseEnv: "Choose your immersive environment:",
                 whatThought: "What thought is holding you captive?",
@@ -369,17 +395,24 @@
                 phase5Main: "Reset finished.",
                 phase5Sub: "You have your focus back.",
                 restartButton: "Start Over",
-                breathTextAnim: "breath-text-en",
-                perspectiveQuestions: [
+                // breathTextAnim entfernt
+                perspectiveQuestions: [ // Auf 14 erweitert
                     "Will this thought matter in 3 months?",
                     "Will it matter in 3 years?",
                     "What would you tell a friend who had this thought?",
                     "Is this a fact or your interpretation?",
                     "Can you prove this thought is 100% true?",
                     "Is this thought a bridge or a wall?",
-                    "What if this thought is just a cloud passing by?"
+                    "What if this thought is just a cloud passing by?",
+                    "How does this thought feel in your body?",
+                    "Is this thought useful to you right now?",
+                    "What emotion is truly behind it?",
+                    "What's the worst that could happen? And how likely is that?",
+                    "What is the *one* thing you can control *right now*?",
+                    "Has this thought (or a similar one) ever helped you?",
+                    "Whose voice are you actually hearing in your head?"
                 ],
-                distractionMessages: [
+                distractionMessages: [ // Auf 40 erweitert
                     "Over 500,000 children were born in the last 2 minutes.",
                     "In this second, 100 lightning bolts struck the Earth.",
                     "Your heart has beaten ~70 times in the last minute, without you thinking about it.",
@@ -388,7 +421,7 @@
                     "Billions of neurons are firing right now just to read this sentence.",
                     "You are breathing in molecules that have traveled through ancient forests.",
                     "The universe is about 93 billion light-years in diameter.",
-                    "Your body is replacing about 300 million cells per minute.",
+                    "Your body is replacing about 300 million cells al minute.",
                     "A squirrel forgets thousands of buried nuts each year.",
                     "A bee has five eyes and can see ultraviolet light.",
                     "The human sense of smell can distinguish over a trillion scents.",
@@ -407,10 +440,24 @@
                     "Most atoms in your body are older than the solar system.",
                     "There are more possible moves in chess than atoms in the observable universe.",
                     "The Milky Way is just one of an estimated 2 trillion galaxies.",
-                    "We know more about space than the deep ocean."
+                    "We know more about space than the deep ocean.",
+                    "A giraffe has only seven neck vertebrae, just like a human.",
+                    "The human brain generates about 20 watts of electricity.",
+                    "Antarctica is the largest desert in the world.",
+                    "An octopus has three hearts.",
+                    "The fastest wind speed ever recorded on Earth was 408 km/h (253 mph).",
+                    "Bats are the only mammals that can fly.",
+                    "A blue whale's heart is as large as a small car.",
+                    "In Switzerland, it is illegal to own just one guinea pig.",
+                    "The Eiffel Tower 'grows' up to 15 cm (6 inches) in the summer.",
+                    "A day on Venus is longer than a year on Venus.",
+                    "Some turtles can breathe through their butts.",
+                    "The 'smell of rain' is called Geosmin."
                 ]
             }
         };
+        // --- ENDE ÄNDERUNG ---
+
 
         function setLanguage(lang) {
             currentLang = lang;
@@ -436,7 +483,10 @@
             document.getElementById('p-phase5-main').textContent = t.phase5Sub;
             restartBtn.textContent = t.restartButton;
             
-            breathText.style.animationName = t.breathTextAnim;
+            // --- NEUE ÄNDERUNG ---
+            // 'animationName' wird nicht mehr gesetzt
+            // breathText.style.animationName = t.breathTextAnim; 
+            // --- ENDE ÄNDERUNG ---
         }
 
         function showPhase(phaseNumber) {
@@ -474,11 +524,31 @@
             }, 7000); 
             
             showPhase(3);
+            
+            // --- NEUE ÄNDERUNG: Atem-Text-Animation (JS) ---
+            let breathState = 0; // 0 = einatmen, 1 = ausatmen
+            const breathTexts = currentLang === 'de' ? ["Einatmen...", "Ausatmen..."] : ["Breathe in...", "Breathe out..."];
+            breathText.textContent = breathTexts[0]; // Initialen Text setzen
+
+            // Altes Intervall löschen, falls vorhanden
+            if (breathInterval) clearInterval(breathInterval); 
+            
+            breathInterval = setInterval(() => {
+                breathState = 1 - breathState; // Wechselt zwischen 0 und 1
+                breathText.textContent = breathTexts[breathState];
+            }, 4000); // Alle 4 Sekunden (passend zur 8s visuellen Animation)
+            // --- ENDE ÄNDERUNG ---
+            
             setTimeout(goToPhase4, 60000); 
         }
 
         function goToPhase4() {
             clearInterval(distractionInterval);
+            
+            // --- NEUE ÄNDERUNG ---
+            // Stoppt das Atem-Text-Intervall
+            if (breathInterval) clearInterval(breathInterval);
+            // --- ENDE ÄNDERUNG ---
             
             shrinkingThoughtP2.classList.remove('thought-shrink-animation');
             shrinkingThoughtP3.classList.remove('thought-shrink-animation');
@@ -499,13 +569,18 @@
             audioEl.pause();
             audioEl.currentTime = 0;
             clearInterval(distractionInterval);
+            
+            // --- NEUE ÄNDERUNG ---
+            // Stoppt das Atem-Text-Intervall
+            if (breathInterval) clearInterval(breathInterval);
+            // --- ENDE ÄNDERUNG ---
+            
             thoughtInput.value = "";
             
             shrinkingThoughtP2.classList.remove('thought-shrink-animation');
             shrinkingThoughtP3.classList.remove('thought-shrink-animation');
             thoughtDisplayP4.classList.remove('thought-fade-out');
             
-            // NEU: Theme-Farbe auf Standard (Schwarz) zurücksetzen
             const themeMeta = document.getElementById('theme-color-meta');
             if (themeMeta) {
                 themeMeta.content = '#000000';
@@ -514,7 +589,7 @@
             showPhase(1);
         }
 
-        // --- TEIL B: 3D-SZENEN (Natur-Szene überarbeitet) ---
+        // --- TEIL B: 3D-SZENEN (Code unverändert) ---
 
         if (typeof THREE === 'undefined') {
             alert('Fehler: Die 3D-Bibliothek (Three.js) konnte nicht geladen werden. Bitte prüfe deine Internetverbindung.');
@@ -571,12 +646,11 @@
                 webglScene.fog = null; 
             }
 
-            // GEÄNDERT: Diese Funktion steuert jetzt auch die Theme-Farbe
             function setScenario(scenario) {
                 clearScene();
                 
-                const themeMeta = document.getElementById('theme-color-meta'); // Meta-Tag holen
-                let themeColor = '#000000'; // Standardfarbe (Schwarz)
+                const themeMeta = document.getElementById('theme-color-meta'); 
+                let themeColor = '#000000'; 
                 
                 if (scenario === 'natur' || scenario === 'white-room') {
                     app.className = 'theme-light';
@@ -589,23 +663,22 @@
                 switch (scenario) {
                     case 'kosmos': 
                         initKosmos(); 
-                        themeColor = '#000000'; // Kosmos = Schwarz
+                        themeColor = '#000000'; 
                         break;
                     case 'natur': 
                         initNatur(); 
-                        themeColor = '#ff6f47'; // Natur = Orange (Sonnenuntergang)
+                        themeColor = '#ff6f47'; 
                         break;
                     case 'wolken': 
                         initWolken(); 
-                        themeColor = '#ADD8E6'; // Wolken = Hellblau
+                        themeColor = '#ADD8E6'; 
                         break;
                     case 'white-room': 
                         initWhiteRoom(); 
-                        themeColor = '#f8f8f8'; // White Room = Weiß/Hellgrau
+                        themeColor = '#f8f8f8'; 
                         break;
                 }
                 
-                // Setze die Meta-Theme-Farbe
                 if (themeMeta) {
                     themeMeta.content = themeColor;
                 }
@@ -631,21 +704,19 @@
                 webglCamera.position.z = 10;
             }
 
-            // --- NATUR (Überarbeitet für Sonnenuntergang) ---
             function initNatur() {
-                // Sonnenuntergang Farbpalette (Interpolierbar)
-                const horizonColor = new THREE.Color(0xff6f47); // Orangerot
-                const skyMidColor = new THREE.Color(0x9a4f91);  // Violett
-                const skyTopColor = new THREE.Color(0x403c62);  // Dunkles Blau/Lila
+                const horizonColor = new THREE.Color(0xff6f47); 
+                const skyMidColor = new THREE.Color(0x9a4f91);  
+                const skyTopColor = new THREE.Color(0x403c62);  
 
-                const initialSunPosition = { x: 15, y: 10, z: 10 }; // Startposition der Sonne
-                const finalSunPosition = { x: -10, y: 1, z: 15 }; // Endposition der Sonne (unter Horizont)
-                const sunMovementDuration = 90; // Dauer für den Sonnenuntergang in Sekunden (Gesamtdauer des Reset)
+                const initialSunPosition = { x: 15, y: 10, z: 10 }; 
+                const finalSunPosition = { x: -10, y: 1, z: 15 }; 
+                const sunMovementDuration = 90; 
 
                 const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
                 webglScene.add(ambientLight);
                 
-                const sunLight = new THREE.DirectionalLight(0xffa040, 1.0); // Wärmeres Sonnenlicht
+                const sunLight = new THREE.DirectionalLight(0xffa040, 1.0); 
                 sunLight.position.set(initialSunPosition.x, initialSunPosition.y, initialSunPosition.z); 
                 sunLight.castShadow = true;
                 sunLight.shadow.mapSize.width = 2048; sunLight.shadow.mapSize.height = 2048;
@@ -653,7 +724,6 @@
                 sunLight.shadow.camera.left = -20; sunLight.shadow.camera.right = 20;
                 sunLight.shadow.camera.top = 20; sunLight.shadow.camera.bottom = -20;
                 
-                // Himmelsgeometrie (eine große Kugel, um den Farbverlauf darzustellen)
                 const skyGeo = new THREE.SphereGeometry(200, 32, 15);
                 const skyMat = new THREE.ShaderMaterial({
                     uniforms: {
@@ -680,7 +750,6 @@
                         varying vec3 vWorldPosition;
                         void main() {
                             float h = normalize( vWorldPosition + offset ).y;
-                            // Interpoliere zwischen HorizonColor, MidColor und TopColor basierend auf der Höhe
                             vec3 color = mix( horizonColor, midColor, pow( max( 0.0, h ), exponent ) );
                             color = mix( color, topColor, pow( max( 0.0, h - 0.5 ) * 2.0, exponent * 1.5 ) );
                             gl_FragColor = vec4( color, 1.0 );
@@ -692,28 +761,23 @@
                 webglScene.add(sky);
                 currentObjects.push(sky);
 
-
-                // Animation für Sonnenlicht, Nebel und Himmelsfarben
                 sunLight.userData.animation = (delta, elapsed) => {
-                    const progress = Math.min(1, elapsed / sunMovementDuration); // 0 bis 1
+                    const progress = Math.min(1, elapsed / sunMovementDuration); 
                     
-                    // Sonne bewegt sich und verliert Intensität
                     sunLight.position.lerpVectors(initialSunPosition, finalSunPosition, progress);
-                    sunLight.intensity = THREE.MathUtils.lerp(1.0, 0.4, progress); // Sanft abdunkeln
+                    sunLight.intensity = THREE.MathUtils.lerp(1.0, 0.4, progress); 
                     
-                    // Nebelfarbe anpassen (wird wärmer, dann dunkler)
                     const fogColor = new THREE.Color();
-                    if (progress < 0.5) { // Anfangs warm/orange
+                    if (progress < 0.5) { 
                         fogColor.lerpColors(new THREE.Color(0xffa040), new THREE.Color(0x9a4f91), progress * 2);
-                    } else { // Später dunkler/violett
+                    } else { 
                         fogColor.lerpColors(new THREE.Color(0x9a4f91), new THREE.Color(0x403c62), (progress - 0.5) * 2);
                     }
                     webglScene.fog.color.copy(fogColor);
 
-                    // Himmelsfarben dynamisch anpassen (leicht)
-                    skyMat.uniforms.horizonColor.value.lerpColors(new THREE.Color(0xff6f47), new THREE.Color(0x802a40), progress); // Von Orange zu dunklerem Rot
-                    skyMat.uniforms.midColor.value.lerpColors(new THREE.Color(0x9a4f91), new THREE.Color(0x603a71), progress); // Von Violett zu dunklerem Violett
-                    skyMat.uniforms.topColor.value.lerpColors(new THREE.Color(0x403c62), new THREE.Color(0x201e31), progress); // Von Blau zu dunklerem Blau
+                    skyMat.uniforms.horizonColor.value.lerpColors(new THREE.Color(0xff6f47), new THREE.Color(0x802a40), progress); 
+                    skyMat.uniforms.midColor.value.lerpColors(new THREE.Color(0x9a4f91), new THREE.Color(0x603a71), progress); 
+                    skyMat.uniforms.topColor.value.lerpColors(new THREE.Color(0x403c62), new THREE.Color(0x201e31), progress); 
                 };
                 
                 webglScene.add(sunLight);
@@ -728,7 +792,7 @@
                 webglScene.add(ground);
                 currentObjects.push(ground);
 
-                webglScene.fog = new THREE.FogExp2(0xffa040, 0.05); // Initialer warmer Nebel
+                webglScene.fog = new THREE.FogExp2(0xffa040, 0.05); 
 
                 const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9 });
                 const leavesMat = new THREE.MeshStandardMaterial({ color: 0x228B22, roughness: 0.5 });
@@ -763,17 +827,16 @@
                     currentObjects.push(grass);
                 }
 
-                // NEU: Partikel für "Golden Hour" Effekt
                 const particleCount = 500;
                 const particleGeo = new THREE.BufferGeometry();
                 const positions = [];
                 const colors = [];
-                const particleColor = new THREE.Color(0xffc080); // Gelb-Orange für Partikel
+                const particleColor = new THREE.Color(0xffc080); 
 
                 for (let i = 0; i < particleCount; i++) {
                     positions.push(
                         THREE.MathUtils.randFloatSpread(50), 
-                        THREE.MathUtils.randFloat(0, 20), // Eher im oberen Bereich
+                        THREE.MathUtils.randFloat(0, 20), 
                         THREE.MathUtils.randFloatSpread(50)
                     );
                     colors.push(particleColor.r, particleColor.g, particleColor.b);
@@ -790,7 +853,6 @@
                 });
                 const particles = new THREE.Points(particleGeo, particleMat);
                 particles.userData.animation = (delta) => {
-                    // Sanftes Absinken und Bewegen
                     particles.position.y -= delta * 0.05;
                     particles.position.x += delta * 0.02;
                     if (particles.position.y < -10) particles.position.y = 20;
