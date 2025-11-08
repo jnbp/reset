@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Problem-Reset</title>
+    <title>Reset</title>
+    
+    <meta name="theme-color" id="theme-color-meta" content="#000000">
+    
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cstyle%3Epath%2C%20line%20%7B%20fill%3A%20none%3B%20stroke-width%3A%202%3B%20stroke-linecap%3A%20round%3B%20stroke-linejoin%3A%20round%3B%20stroke%3A%20%23000%3B%20%7D%20%40media%20(prefers-color-scheme%3A%20dark)%20%7B%20path%2C%20line%20%7B%20stroke%3A%20%23FFF%3B%20%7D%20%7D%3C%2Fstyle%3E%3Cpath%20d%3D%22M18.36%206.64a9%209%200%201%201-12.73%200%22%3E%3C%2Fpath%3E%3Cline%20x1%3D%2212%22%20y1%3D%222%22%20x2%3D%2212%22%20y2%3D%2212%22%3E%3C%2Fline%3E%3C%2Fsvg%3E">
     
     <style>
         /* CSS bleibt identisch zu Version 9.0 */
@@ -214,12 +218,10 @@
     
     <div id="app">
         <div class="phase active" id="phase-1">
-            <h1 id="h1-title">Problem-Reset</h1>
-            
-            <p id="p-lang-select" style="font-size: 1rem; margin-bottom: 10px;">Sprache:</p>
+            <h1 id="h1-title">Reset</h1> <p id="p-lang-select" style="font-size: 1rem; margin-bottom: 10px;">Sprache:</p>
             <select id="lang-select">
-                <option value="de">Deutsch</option>
-                <option value="en">English</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="en">🇬🇧 English</option>
             </select>
             
             <p id="p-choose-env" style="font-size: 1rem; margin-bottom: 10px; margin-top: 20px;">Wähle deine immersive Umgebung:</p>
@@ -301,7 +303,7 @@
 
         const translations = {
             'de': {
-                title: "Problem-Reset",
+                title: "Reset", // GEÄNDERT
                 langSelect: "Sprache:",
                 chooseEnv: "Wähle deine immersive Umgebung:",
                 whatThought: "Welcher Gedanke hält dich fest?",
@@ -355,7 +357,7 @@
                 ]
             },
             'en': {
-                title: "Problem Reset",
+                title: "Reset", // GEÄNDERT
                 langSelect: "Language:",
                 chooseEnv: "Choose your immersive environment:",
                 whatThought: "What thought is holding you captive?",
@@ -503,6 +505,12 @@
             shrinkingThoughtP3.classList.remove('thought-shrink-animation');
             thoughtDisplayP4.classList.remove('thought-fade-out');
             
+            // NEU: Theme-Farbe auf Standard (Schwarz) zurücksetzen
+            const themeMeta = document.getElementById('theme-color-meta');
+            if (themeMeta) {
+                themeMeta.content = '#000000';
+            }
+            
             showPhase(1);
         }
 
@@ -563,8 +571,12 @@
                 webglScene.fog = null; 
             }
 
+            // GEÄNDERT: Diese Funktion steuert jetzt auch die Theme-Farbe
             function setScenario(scenario) {
                 clearScene();
+                
+                const themeMeta = document.getElementById('theme-color-meta'); // Meta-Tag holen
+                let themeColor = '#000000'; // Standardfarbe (Schwarz)
                 
                 if (scenario === 'natur' || scenario === 'white-room') {
                     app.className = 'theme-light';
@@ -575,10 +587,27 @@
                 }
 
                 switch (scenario) {
-                    case 'kosmos': initKosmos(); break;
-                    case 'natur': initNatur(); break;
-                    case 'wolken': initWolken(); break;
-                    case 'white-room': initWhiteRoom(); break;
+                    case 'kosmos': 
+                        initKosmos(); 
+                        themeColor = '#000000'; // Kosmos = Schwarz
+                        break;
+                    case 'natur': 
+                        initNatur(); 
+                        themeColor = '#ff6f47'; // Natur = Orange (Sonnenuntergang)
+                        break;
+                    case 'wolken': 
+                        initWolken(); 
+                        themeColor = '#ADD8E6'; // Wolken = Hellblau
+                        break;
+                    case 'white-room': 
+                        initWhiteRoom(); 
+                        themeColor = '#f8f8f8'; // White Room = Weiß/Hellgrau
+                        break;
+                }
+                
+                // Setze die Meta-Theme-Farbe
+                if (themeMeta) {
+                    themeMeta.content = themeColor;
                 }
             }
 
