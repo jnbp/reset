@@ -186,7 +186,7 @@
           s.pan(rand(-1, 1)),
         ]);
       }, 0);
-      // Tropfen in Pützen
+      // Tropfen in Pfützen
       s.loop(250, 1300, () => {
         const t = s.now, f = rand(1400, 3200);
         s.tone('sine', 0.12, [s.envGain(t, 0.003, rand(0.02, 0.06), rand(0.05, 0.1)), s.pan(rand(-0.8, 0.8))],
