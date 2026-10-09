@@ -1,998 +1,147 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset</title>
-    
-    <meta name="theme-color" id="theme-color-meta" content="#000000">
-    
-    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cstyle%3Epath%2C%20line%20%7B%20fill%3A%20none%3B%20stroke-width%3A%202%3B%20stroke-linecap%3A%20round%3B%20stroke-linejoin%3A%20round%3B%20stroke%3A%20%23000%3B%20%7D%20%40media%20(prefers-color-scheme%3A%20dark)%20%7B%20path%2C%20line%20%7B%20stroke%3A%20%23FFF%3B%20%7D%20%7D%3C%2Fstyle%3E%3Cpath%20d%3D%22M18.36%206.64a9%209%200%201%201-12.73%200%22%3E%3C%2Fpath%3E%3Cline%20x1%3D%2212%22%20y1%3D%222%22%20x2%3D%2212%22%20y2%3D%2212%22%3E%3C%2Fline%3E%3C%2Fsvg%3E">
-    
-    <style>
-        /* CSS bleibt identisch zu Version 9.0 */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #000;
-        }
-
-        #webgl-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-        
-        #app {
-            position: relative;
-            z-index: 3;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            color: #ffffff;
-            transition: color 0.5s ease;
-        }
-
-        .phase {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 550px; 
-            animation: fadeIn 1.5s ease-in-out;
-            transition: background-color 0.5s ease, box-shadow 0.5s ease;
-            padding: 20px;
-            border-radius: 20px;
-        }
-        .phase.active { display: flex; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 { font-size: 2.5rem; font-weight: 300; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
-        p { font-size: 1.2rem; font-weight: 300; line-height: 1.6; margin-bottom: 30px; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
-
-        #lang-select, #scenario-select, #thought-input {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.1rem;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            color: #ffffff;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        #lang-select option, #scenario-select option { background: #333; color: #fff; }
-        #thought-input::placeholder { color: rgba(255, 255, 255, 0.5); }
-
-        .btn {
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #000;
-            background-color: #fff;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
-        }
-        .btn:hover { transform: scale(1.05); }
-        
-        #shrinking-thought, #shrinking-thought-p3 {
-            font-size: 2.8rem; 
-            font-weight: 600;
-            line-height: 1.3;
-            margin-bottom: 30px;
-            color: inherit; 
-            text-shadow: 0 0 15px rgba(0,0,0,0.5);
-            word-wrap: break-word;
-            max-width: 100%;
-        }
-        
-        .thought-shrink-animation {
-            animation: shrinkThought 90s linear forwards; 
-        }
-        @keyframes shrinkThought {
-            from { transform: scale(1); opacity: 1; }
-            to   { transform: scale(0.1); opacity: 0.1; }
-        }
-
-        #breather-container {
-            position: relative;
-            width: 180px; 
-            height: 180px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .breather-circle {
-            width: 100%; height: 100%; border-radius: 50%;
-            background: radial-gradient(circle, rgba(118, 218, 255, 0.6) 0%, rgba(53, 133, 182, 0.2) 70%);
-            position: absolute;
-            animation: breathe 8s ease-in-out infinite;
-        }
-        .breather-circle:nth-child(2) { animation-delay: -4s; opacity: 0.7; }
-        
-        /* --- NEUE ÄNDERUNG --- */
-        /* Die Animation für den Text wird jetzt von JS gesteuert, nicht mehr von CSS keyframes */
-        #breath-text {
-            font-size: 1.5rem; font-weight: 500; z-index: 3;
-            /* 'animation' Eigenschaft entfernt */
-        }
-        @keyframes breathe {
-            0%   { transform: scale(0.5); opacity: 0.4; }
-            50%  { transform: scale(1.0); opacity: 0.9; }
-            100% { transform: scale(0.5); opacity: 0.4; }
-        }
-        /* Keyframes für breath-text-de und breath-text-en entfernt, da sie nicht funktionierten */
-        /* --- ENDE ÄNDERUNG --- */
-        
-        #distraction-text-container { height: 60px; display: flex; align-items: center; justify-content: center; margin-top: 10px; }
-        #distraction-text { font-size: 1.1rem; font-style: italic; color: #ccc; animation: fadeIn 1s; }
-        
-        .user-thought-display {
-            font-size: 1.3rem;
-            font-style: italic;
-            font-weight: 400;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-left: 3px solid #76daff;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            word-wrap: break-word;
-        }
-
-        .thought-fade-out { animation: fadeOut 8s ease-in-out forwards; }
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to   { opacity: 0; transform: translateY(-50px); }
-        }
-
-        /* --- THEMES (unverändert) --- */
-        #app.theme-light, 
-        #app.theme-clouds {
-            color: #333; 
-        }
-        #app.theme-light h1, #app.theme-light p,
-        #app.theme-clouds h1, #app.theme-clouds p {
-             color: #333; text-shadow: none;
-        }
-        
-        #app.theme-light #lang-select, #app.theme-light #scenario-select, #app.theme-light #thought-input,
-        #app.theme-clouds #lang-select, #app.theme-clouds #scenario-select, #app.theme-clouds #thought-input {
-            background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.2); color: #333;
-        }
-        #app.theme-light #lang-select option, #app.theme-light #scenario-select option,
-        #app.theme-clouds #lang-select option, #app.theme-clouds #scenario-select option { background: #fff; color: #333; }
-        
-        #app.theme-light #thought-input::placeholder,
-        #app.theme-clouds #thought-input::placeholder { color: #777; }
-        
-        #app.theme-light .btn,
-        #app.theme-clouds .btn { background: #333; color: #fff; }
-        
-        #app.theme-light #distraction-text,
-        #app.theme-clouds #distraction-text { color: #555; }
-        
-        #app.theme-light .breather-circle,
-        #app.theme-clouds .breather-circle {
-            background: radial-gradient(circle, rgba(0, 123, 255, 0.5) 0%, rgba(0, 86, 179, 0.1) 70%);
-        }
-        
-        #app.theme-light .phase {
-            background-color: rgba(255, 255, 255, 0.6); 
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px); 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        #app.theme-clouds .phase {
-            background-color: transparent; 
-            box-shadow: none;
-        }
-        #app.theme-clouds #shrinking-thought,
-        #app.theme-clouds #shrinking-thought-p3 {
-            text-shadow: 0 0 10px rgba(255,255,255,0.7); 
-        }
-
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Reset</title>
+  <meta name="description" content="Reset – ein kurzer Moment, um den Kopf freizubekommen. Wähle einen Ort, schreib deinen Gedanken auf und lass ihn ziehen.">
+  <meta name="theme-color" id="theme-color-meta" content="#000000">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cstyle%3Epath%2C%20line%20%7B%20fill%3A%20none%3B%20stroke-width%3A%202%3B%20stroke-linecap%3A%20round%3B%20stroke-linejoin%3A%20round%3B%20stroke%3A%20%23000%3B%20%7D%20%40media%20(prefers-color-scheme%3A%20dark)%20%7B%20path%2C%20line%20%7B%20stroke%3A%20%23FFF%3B%20%7D%20%7D%3C%2Fstyle%3E%3Cpath%20d%3D%22M18.36%206.64a9%209%200%201%201-12.73%200%22%3E%3C%2Fpath%3E%3Cline%20x1%3D%2212%22%20y1%3D%222%22%20x2%3D%2212%22%20y2%3D%2212%22%3E%3C%2Fline%3E%3C%2Fsvg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-ui="dark" data-phase="setup">
 
-    <canvas id="webgl-canvas"></canvas>
-    
-    <div id="app">
-        <div class="phase active" id="phase-1">
-            <h1 id="h1-title">Reset</h1>
-            
-            <p id="p-lang-select" style="font-size: 1rem; margin-bottom: 10px;">Sprache:</p>
-            <select id="lang-select">
-                <option value="de">🇩🇪 Deutsch</option>
-                <option value="en">🇬🇧 English</option>
-            </select>
-            
-            <p id="p-choose-env" style="font-size: 1rem; margin-bottom: 10px; margin-top: 20px;">Wähle deine immersive Umgebung:</p>
-            <select id="scenario-select">
-                <option value="kosmos">🌌 Kosmos</option>
-                <option value="natur">🌲 Natur</option>
-                <option value="wolken">☁️ Wolken</option>
-                <option value="white-room">⚪ White Room</option>
-            </select>
-            
-            <p id="p-what-thought" style="margin-top: 20px;">Welcher Gedanke hält dich fest?</p>
-            <textarea id="thought-input" rows="2" placeholder="Schreibe ihn hier auf..."></textarea>
-            <button class="btn" id="start-btn">Reset starten (2 Min.)</button>
-        </div>
+  <canvas id="world" aria-hidden="true"></canvas>
+  <div id="veil" aria-hidden="true"></div>
+  <div id="scrim" aria-hidden="true"></div>
 
-        <div class="phase" id="phase-2">
-            <div id="shrinking-thought"></div> 
-            <p id="perspective-question">Wird dieser Gedanke in 3 Monaten noch wichtig sein?</p>
-            <p id="p-phase2-main" style="font-size: 1rem; color: #aaa;">Denke 30 Sekunden darüber nach.</p>
-        </div>
-
-        <div class="phase" id="phase-3">
-            <div id="shrinking-thought-p3"></div> 
-            <div id="breather-container">
-                <div class="breather-circle"></div>
-                <div class="breather-circle"></div>
-                <span id="breath-text"></span>
-                </div>
-            <div id="distraction-text-container">
-                <p id="distraction-text">Konzentriere dich nur auf den Rhythmus.</p>
-            </div>
-        </div>
-
-        <div class="phase" id="phase-4">
-            <p id="p-phase4-main">Zeit, loszulassen. Sieh zu, wie der Gedanke verblasst.</p>
-            <div class="user-thought-display" id="thought-display-p4"></div>
-            <p id="p-phase4-sub" style="font-size: 1rem; color: #aaa;">Was ist die *eine* kleine Aktion, die du als Nächstes tust?</p>
-        </div>
-
-        <div class="phase" id="phase-5">
-            <h1 id="h1-phase5-main">Reset beendet.</h1>
-            <p id="p-phase5-main">Du hast den Fokus zurück.</p>
-            <button class="btn" id="restart-btn">Erneut starten</button>
-        </div>
-
+  <!-- Leiste während einer Sitzung -->
+  <div id="bar" hidden>
+    <div id="progress"><span id="progress-fill"></span></div>
+    <div class="bar-actions">
+      <button class="icon-btn" id="mute-btn" type="button" data-i18n-label="mute">
+        <svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+        <svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+      </button>
+      <button class="icon-btn" id="exit-btn" type="button" data-i18n-label="exit">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
     </div>
-    
-    <audio id="background-audio" src="sound.mp3" loop></audio>
+  </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <main id="app">
+    <!-- 1 · Einstieg -->
+    <section class="sheet" id="setup">
+      <header class="brand">
+        <h1 id="brand-title" aria-label="Reset">Reset</h1>
+        <p data-i18n="tagline"></p>
+      </header>
 
-    <script>
-        // --- TEIL A: APP-ABLAUF (LOGIK - MULTILANGUAGE) ---
+      <label class="label" for="thought-input" data-i18n="thoughtLabel"></label>
+      <div class="field">
+        <textarea id="thought-input" rows="2" maxlength="160" data-i18n-ph="thoughtPlaceholder"></textarea>
+      </div>
 
-        const app = document.getElementById('app');
-        const phases = { 1: document.getElementById('phase-1'), 2: document.getElementById('phase-2'), 3: document.getElementById('phase-3'), 4: document.getElementById('phase-4'), 5: document.getElementById('phase-5') };
-        
-        const langSelect = document.getElementById('lang-select');
-        const startBtn = document.getElementById('start-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const thoughtInput = document.getElementById('thought-input');
-        const breathText = document.getElementById('breath-text');
-        
-        const shrinkingThoughtP2 = document.getElementById('shrinking-thought');
-        const shrinkingThoughtP3 = document.getElementById('shrinking-thought-p3');
-        
-        const thoughtDisplayP4 = document.getElementById('thought-display-p4');
-        const perspectiveQuestionEl = document.getElementById('perspective-question');
-        const scenarioSelect = document.getElementById('scenario-select');
-        const audioEl = document.getElementById('background-audio');
-        const distractionTextEl = document.getElementById('distraction-text');
-        
-        let userThought = "";
-        let distractionInterval;
-        let currentLang = 'de';
-        
-        // --- NEUE ÄNDERUNG ---
-        // Variable für das Atem-Text-Intervall
-        let breathInterval = null;
-        // --- ENDE ÄNDERUNG ---
-        
-        let currentDistractionMessages = [];
-        let currentPerspectiveQuestions = [];
+      <div class="label-row">
+        <span class="label" data-i18n="placeLabel"></span>
+        <span class="place-hint" id="place-hint"></span>
+      </div>
+      <div class="gallery" id="gallery" role="radiogroup"></div>
 
-        // --- NEUE ÄNDERUNG: Listen erweitert ---
-        const translations = {
-            'de': {
-                title: "Reset",
-                langSelect: "Sprache:",
-                chooseEnv: "Wähle deine immersive Umgebung:",
-                whatThought: "Welcher Gedanke hält dich fest?",
-                thoughtPlaceholder: "Schreibe ihn hier auf...",
-                startButton: "Reset starten (2 Min.)",
-                phase2Main: "Denke 30 Sekunden darüber nach.",
-                phase4Main: "Zeit, loszulassen. Sieh zu, wie der Gedanke verblasst.",
-                phase4Sub: "Was ist die *eine* kleine Aktion, die du als Nächstes tust?",
-                phase5Main: "Reset beendet.",
-                phase5Sub: "Du hast den Fokus zurück.",
-                restartButton: "Erneut starten",
-                // breathTextAnim entfernt, da es jetzt über JS gesteuert wird
-                perspectiveQuestions: [ // Auf 14 erweitert
-                    "Wird dieser Gedanke in 3 Monaten noch wichtig sein?", 
-                    "Wird er in 3 Jahren noch wichtig sein?", 
-                    "Was würdest du einem Freund sagen, der diesen Gedanken hat?", 
-                    "Ist dies eine Tatsache oder deine Interpretation?", 
-                    "Kannst du diesen Gedanken zu 100% als wahr beweisen?", 
-                    "Ist dieser Gedanke eine Brücke oder eine Mauer?", 
-                    "Was wäre, wenn dieser Gedanke nur eine Wolke ist, die vorüberzieht?",
-                    "Wie fühlt sich dieser Gedanke in deinem Körper an?",
-                    "Ist dieser Gedanke im Moment nützlich für dich?",
-                    "Welche Emotion steckt wirklich dahinter?",
-                    "Was ist das Schlimmste, was passieren könnte? Und wie wahrscheinlich ist das?",
-                    "Was ist die *eine* Sache, die du *jetzt* kontrollieren kannst?",
-                    "Hat dir dieser Gedanke (oder ein ähnlicher) schon einmal geholfen?",
-                    "Wessen Stimme hörst du da eigentlich in deinem Kopf?"
-                ],
-                distractionMessages: [ // Auf 40 erweitert
-                    "In den letzten 2 Minuten wurden über 500.000 Kinder geboren.",
-                    "In dieser Sekunde sind 100 Blitze auf der Erde eingeschlagen.",
-                    "Dein Herz hat in der letzten Minute ~70 Mal geschlagen, ohne dass du darüber nachdenken musstest.",
-                    "Die Erde hat sich in den letzten 2 Minuten über 3.500 km durchs All bewegt.",
-                    "Über 8 Milliarden Menschen leben auf diesem Planeten, jeder mit eigenen Sorgen.",
-                    "Milliarden von Neuronen feuern gerade, nur um diesen Satz zu lesen.",
-                    "Du atmest Moleküle ein, die schon durch antike Wälder gereist sind.",
-                    "Das Universum ist etwa 93 Milliarden Lichtjahre im Durchmesser.",
-                    "Dein Körper ersetzt gerade etwa 300 Millionen Zellen pro Minute.",
-                    "Ein Eichhörnchen vergisst Tausende von vergrabenen Nüssen pro Jahr.",
-                    "Eine Biene hat fünf Augen und kann Ultraviolettlicht sehen.",
-                    "Der menschliche Geruchssinn kann über eine Billion Gerüche unterscheiden.",
-                    "Es gibt mehr Sterne im Universum als Sandkörner an allen Stränden der Erde.",
-                    "Das größte Lebewesen der Erde ist ein Pilz in Oregon.",
-                    "Kolibris können rückwärts fliegen.",
-                    "Ein Blitz ist fünfmal heißer als die Oberfläche der Sonne.",
-                    "Honig ist das einzige Lebensmittel, das niemals verdirbt.",
-                    "Auf dem Mars geht die Sonne blau auf und unter.",
-                    "Es regnet Diamanten auf Jupiter und Saturn.",
-                    "Eine Wolke kann bis zu 550 Tonnen wiegen.",
-                    "Auf der Erde gibt es mehr Bäume als Sterne in der Milchstraße.",
-                    "Schmetterlinge schmecken mit ihren Füßen.",
-                    "Das Licht der Sonne braucht 8 Minuten und 20 Sekunden zur Erde.",
-                    "Der Ozean bedeckt 70% der Erde, aber wir haben nur 5% erforscht.",
-                    "Die meisten Atome in deinem Körper sind älter als das Sonnensystem.",
-                    "Es gibt mehr mögliche Züge im Schach als Atome im beobachtbaren Universum.",
-                    "Die Milchstraße ist nur eine von geschätzt 2 Billionen Galaxien.",
-                    "Wir wissen mehr über den Weltraum als über die Tiefsee.",
-                    "Eine Giraffe hat nur sieben Halswirbel, genau wie ein Mensch.",
-                    "Das menschliche Gehirn erzeugt etwa 20 Watt Strom.",
-                    "Die Antarktis ist die größte Wüste der Welt.",
-                    "Ein Oktopus hat drei Herzen.",
-                    "Die schnellste Windgeschwindigkeit, die je auf der Erde gemessen wurde, betrug 408 km/h.",
-                    "Fledermäuse sind die einzigen Säugetiere, die fliegen können.",
-                    "Ein Blauwal-Herz ist so groß wie ein kleines Auto.",
-                    "In der Schweiz ist es illegal, nur ein Meerschweinchen zu halten.",
-                    "Der Eiffelturm 'wächst' im Sommer um bis zu 15 cm.",
-                    "Ein Tag auf der Venus ist länger als ein Jahr auf der Venus.",
-                    "Einige Schildkröten können durch ihren Hintern atmen.",
-                    "Der 'Geruch von Regen' wird Geosmin genannt."
-                ]
-            },
-            'en': {
-                title: "Reset",
-                langSelect: "Language:",
-                chooseEnv: "Choose your immersive environment:",
-                whatThought: "What thought is holding you captive?",
-                thoughtPlaceholder: "Write it down here...",
-                startButton: "Start Reset (2 Min.)",
-                phase2Main: "Think about this for 30 seconds.",
-                phase4Main: "Time to let go. Watch the thought fade away.",
-                phase4Sub: "What is the *one* small action you will do next?",
-                phase5Main: "Reset finished.",
-                phase5Sub: "You have your focus back.",
-                restartButton: "Start Over",
-                // breathTextAnim entfernt
-                perspectiveQuestions: [ // Auf 14 erweitert
-                    "Will this thought matter in 3 months?",
-                    "Will it matter in 3 years?",
-                    "What would you tell a friend who had this thought?",
-                    "Is this a fact or your interpretation?",
-                    "Can you prove this thought is 100% true?",
-                    "Is this thought a bridge or a wall?",
-                    "What if this thought is just a cloud passing by?",
-                    "How does this thought feel in your body?",
-                    "Is this thought useful to you right now?",
-                    "What emotion is truly behind it?",
-                    "What's the worst that could happen? And how likely is that?",
-                    "What is the *one* thing you can control *right now*?",
-                    "Has this thought (or a similar one) ever helped you?",
-                    "Whose voice are you actually hearing in your head?"
-                ],
-                distractionMessages: [ // Auf 40 erweitert
-                    "Over 500,000 children were born in the last 2 minutes.",
-                    "In this second, 100 lightning bolts struck the Earth.",
-                    "Your heart has beaten ~70 times in the last minute, without you thinking about it.",
-                    "The Earth has moved over 3,500 km (2,100 miles) through space in the last 2 minutes.",
-                    "Over 8 billion people live on this planet, each with their own worries.",
-                    "Billions of neurons are firing right now just to read this sentence.",
-                    "You are breathing in molecules that have traveled through ancient forests.",
-                    "The universe is about 93 billion light-years in diameter.",
-                    "Your body is replacing about 300 million cells al minute.",
-                    "A squirrel forgets thousands of buried nuts each year.",
-                    "A bee has five eyes and can see ultraviolet light.",
-                    "The human sense of smell can distinguish over a trillion scents.",
-                    "There are more stars in the universe than grains of sand on all Earth's beaches.",
-                    "The largest living organism on Earth is a fungus in Oregon.",
-                    "Hummingbirds can fly backward.",
-                    "A bolt of lightning is five times hotter than the surface of the sun.",
-                    "Honey is the only food that never spoils.",
-                    "On Mars, the sunset is blue.",
-                    "It rains diamonds on Jupiter and Saturn.",
-                    "A cloud can weigh up to 550 tons (1.1 million pounds).",
-                    "There are more trees on Earth than stars in the Milky Way.",
-                    "Butterflies taste with their feet.",
-                    "Sunlight takes 8 minutes and 20 seconds to reach Earth.",
-                    "The ocean covers 70% of Earth, but we've only explored 5% of it.",
-                    "Most atoms in your body are older than the solar system.",
-                    "There are more possible moves in chess than atoms in the observable universe.",
-                    "The Milky Way is just one of an estimated 2 trillion galaxies.",
-                    "We know more about space than the deep ocean.",
-                    "A giraffe has only seven neck vertebrae, just like a human.",
-                    "The human brain generates about 20 watts of electricity.",
-                    "Antarctica is the largest desert in the world.",
-                    "An octopus has three hearts.",
-                    "The fastest wind speed ever recorded on Earth was 408 km/h (253 mph).",
-                    "Bats are the only mammals that can fly.",
-                    "A blue whale's heart is as large as a small car.",
-                    "In Switzerland, it is illegal to own just one guinea pig.",
-                    "The Eiffel Tower 'grows' up to 15 cm (6 inches) in the summer.",
-                    "A day on Venus is longer than a year on Venus.",
-                    "Some turtles can breathe through their butts.",
-                    "The 'smell of rain' is called Geosmin."
-                ]
-            }
-        };
-        // --- ENDE ÄNDERUNG ---
+      <div class="row">
+        <span class="label" data-i18n="durationLabel"></span>
+        <div class="segmented" id="duration" role="radiogroup">
+          <span class="pill" aria-hidden="true"></span>
+          <button type="button" role="radio" data-min="1">1</button>
+          <button type="button" role="radio" data-min="2">2</button>
+          <button type="button" role="radio" data-min="5">5</button>
+          <span class="unit" data-i18n="minutes"></span>
+        </div>
+      </div>
 
+      <button class="btn primary" id="start-btn" type="button"><span data-i18n="start"></span></button>
 
-        function setLanguage(lang) {
-            currentLang = lang;
-            const t = translations[lang];
+      <footer class="setup-foot">
+        <button class="chip" id="sound-btn" type="button" aria-pressed="true"></button>
+        <div class="lang segmented small" role="group" data-i18n-label="language">
+          <span class="pill" aria-hidden="true"></span>
+          <button type="button" data-lang="de">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </footer>
+    </section>
 
-            currentDistractionMessages = t.distractionMessages;
-            currentPerspectiveQuestions = t.perspectiveQuestions;
+    <!-- 2–5 · Sitzung -->
+    <section id="session" hidden>
+      <div id="arrive" hidden>
+        <p class="arrive-eyebrow" id="arrive-eyebrow"></p>
+        <h2 class="arrive-name" id="arrive-name"></h2>
+        <p class="arrive-line" id="arrive-line"></p>
+      </div>
+      <div id="thought"></div>
+      <div class="stage">
+        <div id="reflect" class="step" hidden>
+          <p class="count" id="prompt-count"></p>
+          <p class="prompt reveal" id="prompt"></p>
+        </div>
+        <div id="zoom" class="step" hidden>
+          <div id="ladder">
+            <p id="ladder-label"></p>
+            <div class="ladder-track"><span class="ladder-fill" id="ladder-fill"></span><div class="ladder-dots" id="ladder-dots"></div></div>
+          </div>
+          <div id="breath-ring"><span id="breath-label"></span></div>
+          <p class="fact reveal" id="fact"></p>
+        </div>
+        <div id="release" class="step" hidden>
+          <p class="big reveal" id="release-line"></p>
+          <p class="soft reveal" id="release-question"></p>
+        </div>
+      </div>
+    </section>
 
-            document.title = t.title;
-            document.getElementById('h1-title').textContent = t.title;
-            document.getElementById('p-lang-select').textContent = t.langSelect;
-            document.getElementById('p-choose-env').textContent = t.chooseEnv;
-            document.getElementById('p-what-thought').textContent = t.whatThought;
-            thoughtInput.placeholder = t.thoughtPlaceholder;
-            startBtn.textContent = t.startButton;
-            
-            document.getElementById('p-phase2-main').textContent = t.phase2Main;
-            
-            document.getElementById('p-phase4-main').textContent = t.phase4Main;
-            document.getElementById('p-phase4-sub').innerHTML = t.phase4Sub; 
-            
-            document.getElementById('h1-phase5-main').textContent = t.phase5Main;
-            document.getElementById('p-phase5-main').textContent = t.phase5Sub;
-            restartBtn.textContent = t.restartButton;
-            
-            // --- NEUE ÄNDERUNG ---
-            // 'animationName' wird nicht mehr gesetzt
-            // breathText.style.animationName = t.breathTextAnim; 
-            // --- ENDE ÄNDERUNG ---
-        }
+    <!-- 6 · Ende -->
+    <section class="sheet compact" id="done" hidden>
+      <div class="done-orb" aria-hidden="true"></div>
+      <h2 id="done-title"></h2>
+      <p data-i18n="doneSub"></p>
+      <div class="done-actions">
+        <button class="btn primary" id="again-btn" type="button"><span data-i18n="again"></span></button>
+        <button class="btn ghost" id="stay-btn" type="button" data-i18n="stay"></button>
+      </div>
+    </section>
+  </main>
 
-        function showPhase(phaseNumber) {
-            for (let key in phases) { phases[key].classList.remove('active'); }
-            phases[phaseNumber].classList.add('active');
-        }
+  <p id="stay-hint" data-i18n="stayHint" hidden></p>
 
-        function startReset() {
-            userThought = thoughtInput.value || (currentLang === 'de' ? "Dieser eine Gedanke..." : "This one thought...");
-            audioEl.play().catch(e => console.warn("Audio konnte nicht gestartet werden:", e.message));
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/world.js"></script>
 
-            shrinkingThoughtP2.textContent = userThought;
-            shrinkingThoughtP3.textContent = userThought;
-            
-            const randomIndex = Math.floor(Math.random() * currentPerspectiveQuestions.length);
-            perspectiveQuestionEl.textContent = currentPerspectiveQuestions[randomIndex];
-            
-            shrinkingThoughtP2.classList.add('thought-shrink-animation');
-            shrinkingThoughtP3.classList.add('thought-shrink-animation');
-            
-            showPhase(2);
-            setTimeout(goToPhase3, 30000); 
-        }
+  <!-- Orte: jede Datei ist ein Ort. Neuer Ort = neue Datei + eine Zeile hier. -->
+  <script src="js/places/kosmos.js"></script>
+  <script src="js/places/nordlicht.js"></script>
+  <script src="js/places/strand.js"></script>
+  <script src="js/places/wald.js"></script>
+  <script src="js/places/gipfel.js"></script>
+  <script src="js/places/lagerfeuer.js"></script>
+  <script src="js/places/unterwasser.js"></script>
+  <script src="js/places/stadtregen.js"></script>
+  <script src="js/places/wolken.js"></script>
+  <script src="js/places/regenwald.js"></script>
+  <script src="js/places/wueste.js"></script>
+  <script src="js/places/gewitter.js"></script>
+  <script src="js/places/bach.js"></script>
+  <script src="js/places/sommernacht.js"></script>
+  <script src="js/places/schnee.js"></script>
+  <script src="js/places/kirschbluete.js"></script>
+  <script src="js/places/tiefsee.js"></script>
+  <script src="js/places/weizenfeld.js"></script>
+  <script src="js/places/whiteroom.js"></script>
 
-        function goToPhase3() {
-            let msgIndex = Math.floor(Math.random() * currentDistractionMessages.length);
-            distractionTextEl.textContent = currentDistractionMessages[msgIndex];
-            
-            distractionInterval = setInterval(() => {
-                msgIndex = (msgIndex + 1) % currentDistractionMessages.length;
-                distractionTextEl.style.animation = 'none';
-                distractionTextEl.offsetHeight; 
-                distractionTextEl.style.animation = 'fadeIn 1s';
-                distractionTextEl.textContent = currentDistractionMessages[msgIndex];
-            }, 7000); 
-            
-            showPhase(3);
-            
-            // --- NEUE ÄNDERUNG: Atem-Text-Animation (JS) ---
-            let breathState = 0; // 0 = einatmen, 1 = ausatmen
-            const breathTexts = currentLang === 'de' ? ["Einatmen...", "Ausatmen..."] : ["Breathe in...", "Breathe out..."];
-            breathText.textContent = breathTexts[0]; // Initialen Text setzen
-
-            // Altes Intervall löschen, falls vorhanden
-            if (breathInterval) clearInterval(breathInterval); 
-            
-            breathInterval = setInterval(() => {
-                breathState = 1 - breathState; // Wechselt zwischen 0 und 1
-                breathText.textContent = breathTexts[breathState];
-            }, 4000); // Alle 4 Sekunden (passend zur 8s visuellen Animation)
-            // --- ENDE ÄNDERUNG ---
-            
-            setTimeout(goToPhase4, 60000); 
-        }
-
-        function goToPhase4() {
-            clearInterval(distractionInterval);
-            
-            // --- NEUE ÄNDERUNG ---
-            // Stoppt das Atem-Text-Intervall
-            if (breathInterval) clearInterval(breathInterval);
-            // --- ENDE ÄNDERUNG ---
-            
-            shrinkingThoughtP2.classList.remove('thought-shrink-animation');
-            shrinkingThoughtP3.classList.remove('thought-shrink-animation');
-            
-            thoughtDisplayP4.textContent = userThought;
-            thoughtDisplayP4.classList.remove('thought-fade-out');
-            showPhase(4);
-            setTimeout(() => {
-                thoughtDisplayP4.classList.add('thought-fade-out');
-            }, 500);
-            
-            setTimeout(goToPhase5, 10000); 
-        }
-        
-        function goToPhase5() { showPhase(5); }
-        
-        function restartApp() {
-            audioEl.pause();
-            audioEl.currentTime = 0;
-            clearInterval(distractionInterval);
-            
-            // --- NEUE ÄNDERUNG ---
-            // Stoppt das Atem-Text-Intervall
-            if (breathInterval) clearInterval(breathInterval);
-            // --- ENDE ÄNDERUNG ---
-            
-            thoughtInput.value = "";
-            
-            shrinkingThoughtP2.classList.remove('thought-shrink-animation');
-            shrinkingThoughtP3.classList.remove('thought-shrink-animation');
-            thoughtDisplayP4.classList.remove('thought-fade-out');
-            
-            const themeMeta = document.getElementById('theme-color-meta');
-            if (themeMeta) {
-                themeMeta.content = '#000000';
-            }
-            
-            showPhase(1);
-        }
-
-        // --- TEIL B: 3D-SZENEN (Code unverändert) ---
-
-        if (typeof THREE === 'undefined') {
-            alert('Fehler: Die 3D-Bibliothek (Three.js) konnte nicht geladen werden. Bitte prüfe deine Internetverbindung.');
-        } else {
-            let webglScene, webglCamera, webglRenderer, clock;
-            let currentObjects = [];
-            const webglCanvas = document.getElementById('webgl-canvas');
-
-            function init3D() {
-                webglScene = new THREE.Scene();
-                webglCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                webglCamera.position.z = 5;
-                webglRenderer = new THREE.WebGLRenderer({ canvas: webglCanvas, antialias: true, alpha: true });
-                webglRenderer.setSize(window.innerWidth, window.innerHeight);
-                webglRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                webglRenderer.shadowMap.enabled = true;
-                webglRenderer.shadowMap.type = THREE.PCFSoftShadowMap; 
-                
-                clock = new THREE.Clock();
-                window.addEventListener('resize', onWindowResize, false);
-                
-                setScenario(scenarioSelect.value);
-                animate3D();
-            }
-
-            function onWindowResize() {
-                webglCamera.aspect = window.innerWidth / window.innerHeight;
-                webglCamera.updateProjectionMatrix();
-                webglRenderer.setSize(window.innerWidth, window.innerHeight);
-            }
-
-            function animate3D() {
-                requestAnimationFrame(animate3D);
-                const delta = clock.getDelta();
-                const elapsed = clock.getElapsedTime(); 
-
-                currentObjects.forEach(obj => {
-                    if (obj.userData.animation) {
-                        obj.userData.animation(delta, elapsed, webglCamera); 
-                    }
-                });
-                
-                webglRenderer.render(webglScene, webglCamera);
-            }
-
-            function clearScene() {
-                for (const obj of currentObjects) {
-                    if (obj.geometry) obj.geometry.dispose();
-                    if (obj.material) obj.material.dispose();
-                    webglScene.remove(obj);
-                }
-                currentObjects = [];
-                webglScene.clear();
-                webglScene.fog = null; 
-            }
-
-            function setScenario(scenario) {
-                clearScene();
-                
-                const themeMeta = document.getElementById('theme-color-meta'); 
-                let themeColor = '#000000'; 
-                
-                if (scenario === 'natur' || scenario === 'white-room') {
-                    app.className = 'theme-light';
-                } else if (scenario === 'wolken') {
-                    app.className = 'theme-clouds'; 
-                } else {
-                    app.className = ''; 
-                }
-
-                switch (scenario) {
-                    case 'kosmos': 
-                        initKosmos(); 
-                        themeColor = '#000000'; 
-                        break;
-                    case 'natur': 
-                        initNatur(); 
-                        themeColor = '#ff6f47'; 
-                        break;
-                    case 'wolken': 
-                        initWolken(); 
-                        themeColor = '#ADD8E6'; 
-                        break;
-                    case 'white-room': 
-                        initWhiteRoom(); 
-                        themeColor = '#f8f8f8'; 
-                        break;
-                }
-                
-                if (themeMeta) {
-                    themeMeta.content = themeColor;
-                }
-            }
-
-            function initKosmos() {
-                webglRenderer.setClearColor(0x000000, 1); 
-                const starCount = 20000; 
-                const vertices = [];
-                for (let i = 0; i < starCount; i++) {
-                    vertices.push(THREE.MathUtils.randFloatSpread(400), THREE.MathUtils.randFloatSpread(400), THREE.MathUtils.randFloatSpread(400));
-                }
-                const geometry = new THREE.BufferGeometry();
-                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-                const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.8 });
-                const stars = new THREE.Points(geometry, material);
-                stars.userData.animation = (delta) => {
-                    stars.position.z += delta * 5; 
-                    if (stars.position.z > 200) stars.position.z = -200;
-                };
-                webglScene.add(stars);
-                currentObjects.push(stars);
-                webglCamera.position.z = 10;
-            }
-
-            function initNatur() {
-                const horizonColor = new THREE.Color(0xff6f47); 
-                const skyMidColor = new THREE.Color(0x9a4f91);  
-                const skyTopColor = new THREE.Color(0x403c62);  
-
-                const initialSunPosition = { x: 15, y: 10, z: 10 }; 
-                const finalSunPosition = { x: -10, y: 1, z: 15 }; 
-                const sunMovementDuration = 90; 
-
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
-                webglScene.add(ambientLight);
-                
-                const sunLight = new THREE.DirectionalLight(0xffa040, 1.0); 
-                sunLight.position.set(initialSunPosition.x, initialSunPosition.y, initialSunPosition.z); 
-                sunLight.castShadow = true;
-                sunLight.shadow.mapSize.width = 2048; sunLight.shadow.mapSize.height = 2048;
-                sunLight.shadow.camera.near = 0.5; sunLight.shadow.camera.far = 50;
-                sunLight.shadow.camera.left = -20; sunLight.shadow.camera.right = 20;
-                sunLight.shadow.camera.top = 20; sunLight.shadow.camera.bottom = -20;
-                
-                const skyGeo = new THREE.SphereGeometry(200, 32, 15);
-                const skyMat = new THREE.ShaderMaterial({
-                    uniforms: {
-                        topColor: { value: skyTopColor },
-                        midColor: { value: skyMidColor },
-                        horizonColor: { value: horizonColor },
-                        offset: { value: 33 },
-                        exponent: { value: 0.6 }
-                    },
-                    vertexShader: `
-                        varying vec3 vWorldPosition;
-                        void main() {
-                            vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-                            vWorldPosition = worldPosition.xyz;
-                            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-                        }
-                    `,
-                    fragmentShader: `
-                        uniform vec3 topColor;
-                        uniform vec3 midColor;
-                        uniform vec3 horizonColor;
-                        uniform float offset;
-                        uniform float exponent;
-                        varying vec3 vWorldPosition;
-                        void main() {
-                            float h = normalize( vWorldPosition + offset ).y;
-                            vec3 color = mix( horizonColor, midColor, pow( max( 0.0, h ), exponent ) );
-                            color = mix( color, topColor, pow( max( 0.0, h - 0.5 ) * 2.0, exponent * 1.5 ) );
-                            gl_FragColor = vec4( color, 1.0 );
-                        }
-                    `,
-                    side: THREE.BackSide 
-                });
-                const sky = new THREE.Mesh(skyGeo, skyMat);
-                webglScene.add(sky);
-                currentObjects.push(sky);
-
-                sunLight.userData.animation = (delta, elapsed) => {
-                    const progress = Math.min(1, elapsed / sunMovementDuration); 
-                    
-                    sunLight.position.lerpVectors(initialSunPosition, finalSunPosition, progress);
-                    sunLight.intensity = THREE.MathUtils.lerp(1.0, 0.4, progress); 
-                    
-                    const fogColor = new THREE.Color();
-                    if (progress < 0.5) { 
-                        fogColor.lerpColors(new THREE.Color(0xffa040), new THREE.Color(0x9a4f91), progress * 2);
-                    } else { 
-                        fogColor.lerpColors(new THREE.Color(0x9a4f91), new THREE.Color(0x403c62), (progress - 0.5) * 2);
-                    }
-                    webglScene.fog.color.copy(fogColor);
-
-                    skyMat.uniforms.horizonColor.value.lerpColors(new THREE.Color(0xff6f47), new THREE.Color(0x802a40), progress); 
-                    skyMat.uniforms.midColor.value.lerpColors(new THREE.Color(0x9a4f91), new THREE.Color(0x603a71), progress); 
-                    skyMat.uniforms.topColor.value.lerpColors(new THREE.Color(0x403c62), new THREE.Color(0x201e31), progress); 
-                };
-                
-                webglScene.add(sunLight);
-                currentObjects.push(ambientLight, sunLight);
-
-                const groundMat = new THREE.MeshStandardMaterial({ color: 0x4da650, roughness: 0.8, metalness: 0.1 });
-                const groundGeo = new THREE.PlaneGeometry(100, 100);
-                const ground = new THREE.Mesh(groundGeo, groundMat);
-                ground.rotation.x = -Math.PI / 2;
-                ground.position.y = -2;
-                ground.receiveShadow = true;
-                webglScene.add(ground);
-                currentObjects.push(ground);
-
-                webglScene.fog = new THREE.FogExp2(0xffa040, 0.05); 
-
-                const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9 });
-                const leavesMat = new THREE.MeshStandardMaterial({ color: 0x228B22, roughness: 0.5 });
-                
-                for(let i = 0; i < 40; i++) {
-                    const tree = new THREE.Group();
-                    const trunkHeight = Math.random() * 2 + 3;
-                    const trunkGeo = new THREE.BoxGeometry(0.3, trunkHeight, 0.3);
-                    const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-                    trunk.position.y = trunkHeight / 2 - 2;
-                    trunk.castShadow = true;
-                    tree.add(trunk);
-                    const crownRadius = Math.random() * 1 + 1.5;
-                    const leavesGeo = new THREE.IcosahedronGeometry(crownRadius, 1); 
-                    const leaves = new THREE.Mesh(leavesGeo, leavesMat);
-                    leaves.position.y = trunkHeight - 2 + crownRadius / 2 - 0.5;
-                    leaves.castShadow = true;
-                    tree.add(leaves);
-                    tree.position.set(THREE.MathUtils.randFloatSpread(30), 0, THREE.MathUtils.randFloatSpread(30) - 15);
-                    webglScene.add(tree);
-                    currentObjects.push(tree);
-                }
-
-                const grassMat = new THREE.MeshStandardMaterial({ color: 0x6B8E23, side: THREE.DoubleSide });
-                for(let i = 0; i < 800; i++) {
-                    const grassGeo = new THREE.PlaneGeometry(0.1, Math.random() * 0.2 + 0.1);
-                    const grass = new THREE.Mesh(grassGeo, grassMat);
-                    grass.position.set(THREE.MathUtils.randFloatSpread(35), -1.9 + Math.random() * 0.05, THREE.MathUtils.randFloatSpread(35));
-                    grass.rotation.x = -Math.PI / 2 + Math.random() * 0.5 - 0.25;
-                    grass.rotation.z = Math.random() * Math.PI;
-                    webglScene.add(grass);
-                    currentObjects.push(grass);
-                }
-
-                const particleCount = 500;
-                const particleGeo = new THREE.BufferGeometry();
-                const positions = [];
-                const colors = [];
-                const particleColor = new THREE.Color(0xffc080); 
-
-                for (let i = 0; i < particleCount; i++) {
-                    positions.push(
-                        THREE.MathUtils.randFloatSpread(50), 
-                        THREE.MathUtils.randFloat(0, 20), 
-                        THREE.MathUtils.randFloatSpread(50)
-                    );
-                    colors.push(particleColor.r, particleColor.g, particleColor.b);
-                }
-                particleGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-                particleGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-                const particleMat = new THREE.PointsMaterial({
-                    size: 0.1,
-                    vertexColors: true,
-                    transparent: true,
-                    opacity: 0.5,
-                    blending: THREE.AdditiveBlending 
-                });
-                const particles = new THREE.Points(particleGeo, particleMat);
-                particles.userData.animation = (delta) => {
-                    particles.position.y -= delta * 0.05;
-                    particles.position.x += delta * 0.02;
-                    if (particles.position.y < -10) particles.position.y = 20;
-                    if (particles.position.x > 25) particles.position.x = -25;
-                };
-                webglScene.add(particles);
-                currentObjects.push(particles);
-
-                webglCamera.position.set(0, 2, 8); 
-                webglCamera.lookAt(0, 0, 0);
-            }
-
-            function initWolken() {
-                webglRenderer.setClearColor(0xADD8E6, 1); 
-                webglScene.fog = new THREE.Fog(0xADD8E6, 10, 50); 
-                
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-                webglScene.add(ambientLight);
-                currentObjects.push(ambientLight);
-
-                const textureCanvas = document.createElement('canvas');
-                textureCanvas.width = 128; textureCanvas.height = 128;
-                const ctx = textureCanvas.getContext('2d');
-                let g1 = ctx.createRadialGradient(64, 64, 10, 64, 64, 60);
-                g1.addColorStop(0, 'rgba(255, 255, 255, 0.8)'); g1.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                let g2 = ctx.createRadialGradient(32, 32, 5, 32, 32, 30);
-                g2.addColorStop(0, 'rgba(255, 255, 255, 0.6)'); g2.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                let g3 = ctx.createRadialGradient(96, 80, 8, 96, 80, 40);
-                g3.addColorStop(0, 'rgba(255, 255, 255, 0.7)'); g3.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                ctx.fillStyle = g1; ctx.fillRect(0,0,128,128);
-                ctx.fillStyle = g2; ctx.fillRect(0,0,128,128);
-                ctx.fillStyle = g3; ctx.fillRect(0,0,128,128);
-                const cloudTexture = new THREE.CanvasTexture(textureCanvas);
-
-                const cloudMat = new THREE.MeshBasicMaterial({
-                    map: cloudTexture,
-                    transparent: true,
-                    opacity: 0.9,
-                    depthWrite: false, 
-                });
-                const cloudGeo = new THREE.PlaneGeometry(10, 10);
-
-                for (let i = 0; i < 150; i++) {
-                    const cloud = new THREE.Mesh(cloudGeo, cloudMat);
-                    cloud.position.set(
-                        THREE.MathUtils.randFloatSpread(50), 
-                        THREE.MathUtils.randFloatSpread(20),  
-                        THREE.MathUtils.randFloatSpread(50) - 20 
-                    );
-                    cloud.rotation.z = Math.random() * Math.PI;
-                    cloud.userData.speed = Math.random() * 0.6 + 0.3; 
-                    
-                    cloud.userData.animation = (delta, elapsed, camera) => {
-                        cloud.position.x += delta * cloud.userData.speed;
-                        if (cloud.position.x > 30) cloud.position.x = -30;
-                        cloud.lookAt(camera.position); 
-                    };
-                    webglScene.add(cloud);
-                    currentObjects.push(cloud);
-                }
-                
-                webglCamera.position.set(0, 0, 30); 
-            }
-
-            function initWhiteRoom() {
-                webglRenderer.setClearColor(0xf8f8f8, 1); 
-
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-                webglScene.add(ambientLight);
-                
-                const pointLight = new THREE.PointLight(0xffffff, 0.6);
-                pointLight.position.set(5, 5, 5);
-                pointLight.castShadow = true;
-                pointLight.shadow.mapSize.width = 1024;
-                pointLight.shadow.mapSize.height = 1024;
-                webglScene.add(pointLight);
-                currentObjects.push(ambientLight, pointLight);
-
-                const floorMat = new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.3, metalness: 0.05 });
-                const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), floorMat);
-                floor.rotation.x = -Math.PI / 2;
-                floor.position.y = -5;
-                floor.receiveShadow = true;
-                webglScene.add(floor);
-                currentObjects.push(floor);
-
-                const shapeMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xffffff,
-                    metalness: 0.9, 
-                    roughness: 0.05, 
-                    transparent: true,
-                    opacity: 0.9
-                });
-
-                for(let i = 0; i < 10; i++) {
-                    const geometry = new THREE.TorusKnotGeometry( Math.random() * 1.5 + 0.5, Math.random() * 0.2 + 0.1, 100, 16 );
-                    const obj = new THREE.Mesh(geometry, shapeMaterial);
-                    obj.position.set(
-                        THREE.MathUtils.randFloatSpread(10),
-                        THREE.MathUtils.randFloatSpread(10),
-                        THREE.MathUtils.randFloatSpread(10)
-                    );
-                    obj.castShadow = true;
-                    
-                    const rotationSpeed = Math.random() * 0.1 + 0.05;
-                    const floatSpeed = Math.random() * 0.2 + 0.1;
-                    const floatAmplitude = Math.random() * 1 + 0.5;
-
-                    obj.userData.animation = (delta, elapsed) => {
-                        obj.rotation.x += delta * rotationSpeed;
-                        obj.rotation.y += delta * rotationSpeed * 0.5;
-                        obj.position.y += Math.sin(elapsed * floatSpeed) * floatAmplitude * delta;
-                    };
-                    
-                    webglScene.add(obj);
-                    currentObjects.push(obj);
-                }
-                webglCamera.position.set(0, 0, 15);
-            }
-
-            init3D();
-        }
-
-        if(startBtn) {
-            startBtn.addEventListener('click', startReset);
-        } else {
-            console.error("Start-Button wurde nicht gefunden!");
-        }
-        if(restartBtn) {
-            restartBtn.addEventListener('click', restartApp);
-        }
-        if(scenarioSelect) {
-            scenarioSelect.addEventListener('change', (e) => setScenario(e.target.value));
-        }
-        if(langSelect) {
-            langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
-        }
-        
-        setLanguage(currentLang);
-
-    </script>
+  <script src="js/app.js"></script>
 </body>
 </html>
