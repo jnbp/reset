@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Reset</title>
-  <meta name="description" content="Reset – ein kurzer Moment, um den Kopf freizubekommen. Wähle einen Ort, schreib deinen Gedanken auf und lass ihn ziehen.">
+  <meta name="description" content="Reset – a short moment to clear your head. Pick a place, write down your thought and let it drift away.">
   <meta name="theme-color" id="theme-color-meta" content="#000000">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cstyle%3Epath%2C%20line%20%7B%20fill%3A%20none%3B%20stroke-width%3A%202%3B%20stroke-linecap%3A%20round%3B%20stroke-linejoin%3A%20round%3B%20stroke%3A%20%23000%3B%20%7D%20%40media%20(prefers-color-scheme%3A%20dark)%20%7B%20path%2C%20line%20%7B%20stroke%3A%20%23FFF%3B%20%7D%20%7D%3C%2Fstyle%3E%3Cpath%20d%3D%22M18.36%206.64a9%209%200%201%201-12.73%200%22%3E%3C%2Fpath%3E%3Cline%20x1%3D%2212%22%20y1%3D%222%22%20x2%3D%2212%22%20y2%3D%2212%22%3E%3C%2Fline%3E%3C%2Fsvg%3E">
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
@@ -18,7 +21,7 @@
   <div id="veil" aria-hidden="true"></div>
   <div id="scrim" aria-hidden="true"></div>
 
-  <!-- Leiste während einer Sitzung -->
+  <!-- Bar shown during a session -->
   <div id="bar" hidden>
     <div id="progress"><span id="progress-fill"></span></div>
     <div class="bar-actions">
@@ -33,7 +36,7 @@
   </div>
 
   <main id="app">
-    <!-- 1 · Einstieg -->
+    <!-- 1 · Setup -->
     <section class="sheet" id="setup">
       <header class="brand">
         <h1 id="brand-title" aria-label="Reset">Reset</h1>
@@ -74,7 +77,7 @@
       </footer>
     </section>
 
-    <!-- 2–5 · Sitzung -->
+    <!-- 2–5 · Session -->
     <section id="session" hidden>
       <div id="arrive" hidden>
         <p class="arrive-eyebrow" id="arrive-eyebrow"></p>
@@ -102,7 +105,7 @@
       </div>
     </section>
 
-    <!-- 6 · Ende -->
+    <!-- 6 · End -->
     <section class="sheet compact" id="done" hidden>
       <div class="done-orb" aria-hidden="true"></div>
       <h2 id="done-title"></h2>
@@ -121,26 +124,26 @@
   <script src="js/sound.js"></script>
   <script src="js/world.js"></script>
 
-  <!-- Orte: jede Datei ist ein Ort. Neuer Ort = neue Datei + eine Zeile hier. -->
-  <script src="js/places/kosmos.js"></script>
-  <script src="js/places/nordlicht.js"></script>
-  <script src="js/places/strand.js"></script>
-  <script src="js/places/wald.js"></script>
-  <script src="js/places/gipfel.js"></script>
-  <script src="js/places/lagerfeuer.js"></script>
-  <script src="js/places/unterwasser.js"></script>
-  <script src="js/places/stadtregen.js"></script>
-  <script src="js/places/wolken.js"></script>
-  <script src="js/places/regenwald.js"></script>
-  <script src="js/places/wueste.js"></script>
-  <script src="js/places/gewitter.js"></script>
-  <script src="js/places/bach.js"></script>
-  <script src="js/places/sommernacht.js"></script>
-  <script src="js/places/schnee.js"></script>
-  <script src="js/places/kirschbluete.js"></script>
-  <script src="js/places/tiefsee.js"></script>
-  <script src="js/places/weizenfeld.js"></script>
-  <script src="js/places/whiteroom.js"></script>
+  <!-- Places: one file per place. New place = new file + one line here. -->
+  <script src="js/places/cosmos.js"></script>
+  <script src="js/places/northern-lights.js"></script>
+  <script src="js/places/beach.js"></script>
+  <script src="js/places/forest.js"></script>
+  <script src="js/places/summit.js"></script>
+  <script src="js/places/campfire.js"></script>
+  <script src="js/places/underwater.js"></script>
+  <script src="js/places/rainy-city.js"></script>
+  <script src="js/places/clouds.js"></script>
+  <script src="js/places/rainforest.js"></script>
+  <script src="js/places/desert.js"></script>
+  <script src="js/places/thunderstorm.js"></script>
+  <script src="js/places/mountain-stream.js"></script>
+  <script src="js/places/summer-night.js"></script>
+  <script src="js/places/snowy-forest.js"></script>
+  <script src="js/places/cherry-blossom.js"></script>
+  <script src="js/places/deep-sea.js"></script>
+  <script src="js/places/wheat-field.js"></script>
+  <script src="js/places/white-room.js"></script>
 
   <script src="js/app.js"></script>
 </body>

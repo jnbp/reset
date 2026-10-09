@@ -1,61 +1,63 @@
 # Reset
 
-Ein kurzer Moment, um den Kopf freizubekommen: Gedanken aufschreiben, an einen ruhigen Ort reisen, atmen, loslassen.
+A short moment to clear your head: write down what's on your mind, travel to a calm place, breathe, let go.
 
 **Live:** https://reset.bapo.me
 
-## So funktioniert's
+## How it works
 
-1. Gedanken aufschreiben, der dich gerade festhält.
-2. Einen Ort wählen (oder „Überrasch mich“) und die Dauer: 1, 2 oder 5 Minuten.
-3. Die Sitzung läuft in vier Phasen:
-   - **Ankommen** (5 s): Der Ort erscheint, die Kamera gleitet hinein.
-   - **Hinschauen**: drei bis fünf kurze Fragen als Bogen – benennen, prüfen, Zeitperspektive, Einfluss, Freundlichkeit.
-   - **Herauszoomen**: atmen (4 s ein, 4 s aus), dazu Fakten von klein nach groß – Du, Menschheit, Erde, Sonnensystem, Milchstraße, Universum. Manche Zahlen laufen live mit („Seit du hier bist …“). Die Kamera zieht sich zurück, der Gedanke schrumpft zu einem Punkt.
-   - **Loslassen**: Der Gedanke löst sich Buchstabe für Buchstabe auf.
+1. Write down the thought that's holding on to you.
+2. Pick a place (or "Surprise me") and a duration: 1, 2 or 5 minutes.
+3. The session runs in four phases:
+   - **Arrive** (5 s): the place fades in and the camera glides into it.
+   - **Reflect**: three to five short questions that form an arc: name it, check it, put it in time, see what you can influence, be kind to yourself.
+   - **Zoom out**: breathe (4 s in, 4 s out) while facts grow from small to vast: you, humanity, Earth, the solar system, the Milky Way, the universe. Some numbers count up live ("Since you arrived …"). The camera pulls back and the thought shrinks to a dot.
+   - **Let go**: the thought dissolves letter by letter.
 
-Die Zeiten pro Dauer stehen oben in `js/app.js` (`PLAN`).
+The timing for each duration is set at the top of `js/app.js` (`PLAN`).
 
-Jeder Ort hat eine eigene Klangwelt, die live im Browser erzeugt wird. Es gibt keine Audiodateien. Viele Orte variieren bei jedem Besuch (Tageszeit, Wetter, Anordnung). Fakten, die du schon gesehen hast, kommen erst wieder, wenn die anderen durch sind.
+Every place has its own soundscape, generated live in the browser. There are no audio files. Many places vary on each visit (time of day, weather, layout). Facts you have already seen only come back once you have seen the others.
 
-## Aufbau
+The interface is available in English and German.
+
+## Structure
 
 ```
-index.html            Gerüst der Seite, lädt alle Skripte
-css/style.css         Aussehen der Oberfläche
-js/i18n.js            alle Texte (DE/EN), Perspektivfragen, allgemeine Fakten
-js/sound.js           Klangwelten (Web Audio API)
-js/world.js           3D-Welt und Baukasten für Orte (Three.js)
-js/places/*.js        ein Ort pro Datei
-js/app.js             Ablauf: Einstieg, Phasen, Ende
+index.html            page skeleton, loads all scripts
+css/style.css         look and animations of the interface
+js/i18n.js            all text (EN/DE), reflection questions, general facts
+js/sound.js           soundscapes (Web Audio API)
+js/world.js           3D world and toolkit for places (Three.js)
+js/places/*.js        one place per file
+js/app.js             flow: setup, phases, end
 ```
 
-Kein Build-Schritt, keine Abhängigkeiten außer Three.js vom CDN. Lokal starten:
+No build step and no dependencies except Three.js from a CDN. To run it locally:
 
 ```bash
 python3 -m http.server
-# dann http://localhost:8000 öffnen
+# then open http://localhost:8000
 ```
 
-## Einen neuen Ort hinzufügen
+## Adding a place
 
-1. Eine bestehende Datei in `js/places/` kopieren, z. B. `sommernacht.js` → `bergsee.js`.
-2. `id`, Namen, Farben und Fakten anpassen, in `build(w)` die Szene bauen.
-3. In `index.html` eine Zeile ergänzen: `<script src="js/places/bergsee.js"></script>`
+1. Copy an existing file in `js/places/`, e.g. `summer-night.js` → `mountain-lake.js`.
+2. Change the `id`, names, colours and facts, and build the scene in `build(w)`.
+3. Add one line to `index.html`: `<script src="js/places/mountain-lake.js"></script>`
 
-Ein Ort sieht so aus:
+A place looks like this:
 
 ```js
 ResetWorld.define({
-  id: 'bergsee',
-  name: { de: 'Bergsee', en: 'Mountain Lake' },
-  hint: { de: 'Stilles Wasser vor hohen Gipfeln', en: 'Still water below high peaks' },
-  sound: 'wind',                       // eine Klangwelt aus js/sound.js
-  ui: 'light',                         // 'light' = dunkle Schrift, 'dark' = helle Schrift
-  swatch: ['#8fbfe3', '#d7e9ef', '#3f7f8f'], // Farbverlauf der Kachel
-  themeColor: '#d7e9ef',               // Farbe der Browserleiste
-  facts: { de: ['…'], en: ['…'] },     // erscheinen beim Herauszoomen als „Hier“
-  pull: { back: 7, up: 2.5 },          // optional: wie weit die Kamera beim Herauszoomen zurückfährt
+  id: 'mountain-lake',
+  name: { en: 'Mountain Lake', de: 'Bergsee' },
+  hint: { en: 'Still water below high peaks', de: 'Stilles Wasser vor hohen Gipfeln' },
+  sound: 'wind',                       // a soundscape from js/sound.js
+  ui: 'light',                         // 'light' = dark text, 'dark' = light text
+  swatch: ['#8fbfe3', '#d7e9ef', '#3f7f8f'], // gradient of the gallery tile
+  themeColor: '#d7e9ef',               // colour of the browser toolbar
+  facts: { en: ['…'], de: ['…'] },     // shown as "Here" while zooming out
+  pull: { back: 7, up: 2.5 },          // optional: how far the camera pulls back while zooming out
   build(w) {
     w.sky({ top: 0x8fbfe3, mid: 0xd7e9ef, bottom: 0xe8f0ea });
     w.fog(0xd9e6dc, 0.02);
@@ -64,46 +66,46 @@ ResetWorld.define({
     w.water({ size: 60, y: 0.2 });
     w.trees({ kind: 'pine', count: 40, heightAt: g.heightAt });
     w.camera({ pos: [0, g.heightAt(0, 10) + 1.7, 10], look: [0, 2, -40] });
-    // optional: Varianten zurückgeben, z. B. { ui: 'dark', themeColor: '#123', variant: 'nacht' }
+    // optional: return variants, e.g. { ui: 'dark', themeColor: '#123', variant: 'night' }
   },
 });
 ```
 
-### Der Baukasten (`w`)
+### The toolkit (`w`)
 
-| Helfer | Wofür |
+| Helper | Purpose |
 |---|---|
-| `w.sky({ top, mid, bottom })` | Farbverlauf-Himmel |
-| `w.stars({ count })` | Sternenhimmel, funkelt |
-| `w.glow({ pos, color, size })` | Sonne, Mond, Lichtpunkte |
-| `w.fog(color, dichte)` | Nebel/Tiefe |
-| `w.lights({ ambient, hemi, sun })` | Beleuchtung |
-| `w.terrain({ height, scale, shape, colorAt })` | Gelände; liefert `heightAt(x, z)` |
-| `w.water({ size, y, color, waves, flow })` | bewegtes Wasser |
-| `w.trees({ kind: 'pine' \| 'round' \| 'blossom' \| 'palm', … })` | Bäume |
-| `w.rocks({ … })` | Steine |
-| `w.grass({ count, height, colors, amp })` | Gras/Weizen/Seetang, wiegt sich im Wind |
-| `w.particles({ count, vel, sprite, additive, twinkle })` | Schnee, Blasen, Pollen, Glühwürmchen, Blüten |
-| `w.rain({ count, speed, wind })` | Regen |
-| `w.clouds({ count, box, color })` | Wolken und Nebelschwaden |
-| `w.rays({ count, color })` | Lichtstrahlen |
-| `w.camera({ pos, look, drift, move })` | Kamera mit sanftem Schweben |
-| `w.flash()`, `w.on('lightning', fn)` | Blitze, passend zum Donner im Ton |
-| `w.onFrame((dt, t) => …)` | eigene Animation pro Bild |
-| `w.rand`, `w.pick`, `w.chance`, `w.noise`, `w.fbm` | Zufall und Rauschen |
+| `w.sky({ top, mid, bottom })` | gradient sky |
+| `w.stars({ count })` | twinkling starfield |
+| `w.glow({ pos, color, size })` | sun, moon, points of light |
+| `w.fog(color, density)` | fog and depth |
+| `w.lights({ ambient, hemi, sun })` | lighting |
+| `w.terrain({ height, scale, shape, colorAt })` | terrain; returns `heightAt(x, z)` |
+| `w.water({ size, y, color, waves, flow })` | moving water |
+| `w.trees({ kind: 'pine' \| 'round' \| 'blossom' \| 'palm', … })` | trees |
+| `w.rocks({ … })` | rocks |
+| `w.grass({ count, height, colors, amp })` | grass, wheat or seaweed swaying in the wind |
+| `w.particles({ count, vel, sprite, additive, twinkle })` | snow, bubbles, pollen, fireflies, petals |
+| `w.rain({ count, speed, wind })` | rain |
+| `w.clouds({ count, box, color })` | clouds and mist |
+| `w.rays({ count, color })` | light rays |
+| `w.camera({ pos, look, drift, move })` | camera with a gentle float |
+| `w.flash()`, `w.on('lightning', fn)` | lightning, in sync with the thunder |
+| `w.onFrame((dt, t) => …)` | your own per-frame animation |
+| `w.rand`, `w.pick`, `w.chance`, `w.noise`, `w.fbm` | randomness and noise |
 
-Für alles Weitere steht `w.THREE` (Three.js r128) zur Verfügung.
+For anything else, `w.THREE` (Three.js r128) is available.
 
-## Eine neue Klangwelt hinzufügen
+## Adding a soundscape
 
-In `js/sound.js` mit `define('id', { level, send, build(s) { … } })`. Vorhandene Schichten lassen sich kombinieren: `layers.rain`, `layers.wind`, `layers.birds`, `layers.crickets`, `layers.shimmer`, `layers.chimes`, `layers.drone`, `layers.deepwater`, `layers.bubbles`, `layers.whale`.
+In `js/sound.js`, use `define('id', { level, send, build(s) { … } })`. Existing layers can be combined: `layers.rain`, `layers.wind`, `layers.birds`, `layers.crickets`, `layers.shimmer`, `layers.chimes`, `layers.drone`, `layers.deepwater`, `layers.bubbles`, `layers.whale`.
 
-## Texte, Fragen, Fakten
+## Text, questions, facts
 
-Alles in `js/i18n.js`:
+Everything lives in `js/i18n.js`:
 
-- `prompts` – Reflexionsfragen, sortiert nach Schritt im Bogen (`name`, `check`, `time`, `control`, `kind`)
-- `facts` – Perspektiv-Fakten, sortiert nach Größenordnung (`du`, `menschheit`, `erde`, `sonnensystem`, `milchstrasse`, `universum`)
-- `live` – Fakten mit mitlaufenden Zahlen
+- `prompts`: reflection questions, grouped by step in the arc (`name`, `check`, `time`, `control`, `kind`)
+- `facts`: perspective facts, grouped by scale (`you`, `humanity`, `earth`, `solar`, `galaxy`, `universe`)
+- `live`: facts with numbers that count up live
 
-Ortsbezogene Fakten stehen direkt in der Datei des Ortes und erscheinen in längeren Sitzungen als „Hier“.
+Place-specific facts live in each place's file and appear as "Here" in longer sessions.
