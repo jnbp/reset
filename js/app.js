@@ -1,7 +1,7 @@
-/* Reset – Ablauf der App
+/* Reset – app flow
  *
- * Einstieg → Ankommen → Hinschauen (mehrere kurze Fragen) → Herauszoomen (Atmen + Fakten von klein nach groß) → Loslassen → Ende
- * Die Zeiten pro Dauer stehen in PLAN. Texte, Fragen und Fakten in js/i18n.js.
+ * Setup → Arrive → Reflect (several short questions) → Zoom out (breathing + facts from small to vast) → Let go → End
+ * Timings per duration live in PLAN. Text, questions and facts live in js/i18n.js.
  */
 (function () {
   'use strict';
@@ -9,20 +9,20 @@
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const W = window.ResetWorld, S = window.ResetSound, TXT = window.ResetText;
 
-  // Sekunden je Dauer: Ankommen, Anzahl Fragen, Sekunden pro Frage, Loslassen. Der Rest ist Herauszoomen.
+  // Seconds per duration: arrive, number of questions, seconds per question, let go. The rest is zoom out.
   const PLAN = {
     1: { arrive: 5, prompts: 3, perPrompt: 7, release: 9 },
     2: { arrive: 5, prompts: 4, perPrompt: 9, release: 13 },
     5: { arrive: 6, prompts: 5, perPrompt: 16, release: 26 },
   };
   const ARC = { 3: ['name', 'time', 'kind'], 4: ['name', 'check', 'time', 'kind'], 5: ['name', 'check', 'time', 'control', 'kind'] };
-  const LEVELS = ['du', 'menschheit', 'erde', 'sonnensystem', 'milchstrasse', 'universum'];
+  const LEVELS = ['you', 'humanity', 'earth', 'solar', 'galaxy', 'universe'];
   const FACT_SECONDS = 7.5;
   const BREATH_HALF = 4000;
 
   const store = {
     get(k, d) { try { const v = localStorage.getItem('reset.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set(k, v) { try { localStorage.setItem('reset.' + k, JSON.stringify(v)); } catch (e) { /* privat/gesperrt */ } },
+    set(k, v) { try { localStorage.setItem('reset.' + k, JSON.stringify(v)); } catch (e) { /* private mode / blocked */ } },
   };
   const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
@@ -53,7 +53,7 @@
     fill: $('#progress-fill'), stayHint: $('#stay-hint'), doneTitle: $('#done-title'),
   };
 
-  /* ---------- kleine Animationshelfer ---------- */
+  /* ---------- Small animation helpers ---------- */
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   function letters(node, text) {
     node.innerHTML = '';
@@ -90,7 +90,7 @@
   }
   $$('.btn').forEach((b) => b.addEventListener('pointerdown', (e) => ripple(b, e)));
 
-  /* ---------- Texte ---------- */
+  /* ---------- Text ---------- */
   function applyTexts() {
     document.documentElement.lang = state.lang;
     $$('[data-i18n]').forEach((n) => { n.textContent = t(n.dataset.i18n); });
@@ -112,7 +112,7 @@
     el.mute.classList.toggle('muted', !on);
   }
 
-  /* ---------- Galerie ---------- */
+  /* ---------- Gallery ---------- */
   function buildGallery() {
     el.gallery.innerHTML = '';
     const make = (id, label, swatch, idx) => {
@@ -154,7 +154,7 @@
     }
   }
 
-  /* ---------- Ort anzeigen (mit weicher Unschärfe-Überblendung) ---------- */
+  /* ---------- Show a place (with a soft blur transition) ---------- */
   let showToken = 0;
   function showPlace(id, instant) {
     if (state.shown === id) { updateHint(); return; }
@@ -166,7 +166,7 @@
     setTimeout(() => {
       if (token !== showToken) return;
       let cur = { ui: def.ui, themeColor: def.themeColor };
-      if (state.webgl) { try { cur = W.show(id); } catch (e) { console.error('Ort konnte nicht gebaut werden:', id, e); } }
+      if (state.webgl) { try { cur = W.show(id); } catch (e) { console.error('Could not build place:', id, e); } }
       el.body.dataset.ui = cur.ui;
       el.meta.content = cur.themeColor;
       if (!state.webgl) el.body.style.background = 'linear-gradient(160deg,' + def.swatch.join(',') + ')';
@@ -180,7 +180,7 @@
     }, instant ? 0 : 420);
   }
 
-  /* ---------- Ton ---------- */
+  /* ---------- Sound ---------- */
   function playPlaceSound(id) {
     if (!S) return;
     const def = W.get(id || state.shown);
@@ -196,7 +196,7 @@
     if (on && S.current !== (W.get(state.shown) || {}).sound) playPlaceSound();
   }
 
-  /* ---------- Fakten auswählen ---------- */
+  /* ---------- Picking facts ---------- */
   let seen = new Set(store.get('seen', []));
   function remember(text) {
     seen.add(text);
@@ -209,19 +209,19 @@
     if (!fresh.length) { all.forEach((f) => seen.delete(f)); fresh = all; }
     return fresh.length ? pickOne(fresh) : null;
   }
-  // Reihenfolge der Ebenen für n Fakten: immer von klein nach groß
+  // Order of levels for n facts: always from small to vast
   function levelPlan(n, def) {
     const withHere = n >= 7 && def.facts && def.facts[state.lang] && def.facts[state.lang].length;
     const out = [];
     const lv = LEVELS;
     const rest = withHere ? n - 1 : n;
-    if (withHere) out.push('hier');
+    if (withHere) out.push('here');
     for (let k = 0; k < rest; k++) out.push(lv[Math.min(lv.length - 1, Math.floor((k * lv.length) / rest))]);
-    if (rest >= 1 && rest < lv.length) out[out.length - 1] = 'universum';
+    if (rest >= 1 && rest < lv.length) out[out.length - 1] = 'universe';
     return out;
   }
 
-  /* ---------- Sitzung ---------- */
+  /* ---------- Session ---------- */
   function splitThought(text) {
     el.thought.innerHTML = '';
     let i = 0;
@@ -257,7 +257,7 @@
     try {
       if (on && 'wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
       else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
-    } catch (e) { /* nicht erlaubt – egal */ }
+    } catch (e) { /* not allowed – fine */ }
   }
 
   function startSession() {
@@ -282,7 +282,7 @@
     playPlaceSound(def.id);
     keepAwake(true);
 
-    // Einstieg ausblenden
+    // Hide setup
     el.setup.classList.add('leaving');
     setTimeout(() => { if (state.session === sess) el.setup.hidden = true; }, 700);
     el.done.hidden = true; el.stayHint.hidden = true;
@@ -291,7 +291,7 @@
     ['reflect', 'zoom', 'release'].forEach((k) => { el[k].hidden = true; });
     el.thought.innerHTML = ''; el.thought.className = '';
 
-    // 1 · Ankommen
+    // 1 · Arrive
     if (W.pull) W.pull(0, plan.arrive + 1, 0.55);
     el.arrive.hidden = false; el.arrive.classList.remove('leaving');
     el.arriveEyebrow.textContent = def.hint[state.lang] || def.hint.de;
@@ -301,7 +301,7 @@
     at(plan.arrive - 1.1, () => el.arrive.classList.add('leaving'));
     at(plan.arrive, () => { el.arrive.hidden = true; });
 
-    // 2 · Hinschauen: Gedanke erscheint und schrumpft bis zum Ende des Zooms
+    // 2 · Reflect: the thought appears and shrinks until the zoom ends
     const thought = el.input.value.trim() || t('fallbackThought');
     at(tReflect, () => {
       splitThought(thought);
@@ -324,7 +324,7 @@
       });
     });
 
-    // 3 · Herauszoomen
+    // 3 · Zoom out
     const levels = levelPlan(nFacts - 1, def);
     const ladderLevels = levels.filter((l, i) => levels.indexOf(l) === i);
     at(tZoom, () => {
@@ -353,7 +353,7 @@
         if (k === nFacts - 1) { text = t('closing'); level = null; }
         else {
           level = levels[k];
-          if (level === 'hier') text = placeFacts.shift();
+          if (level === 'here') text = placeFacts.shift();
           else {
             const lives = (TXT[state.lang].live[level] || []).filter((fn) => !liveUsed.has(fn));
             if (lives.length && Math.random() < 0.4) { const fn = pickOne(lives); liveUsed.add(fn); text = fn(elapsed(), num); }
@@ -379,7 +379,7 @@
       });
     }
 
-    // 4 · Loslassen
+    // 4 · Let go
     at(tRelease, () => {
       sess.intervals.forEach(clearInterval); sess.intervals = [];
       showStep('release');
@@ -389,7 +389,7 @@
       el.thought.classList.add('dissolve');
     });
 
-    // 5 · Ende
+    // 5 · End
     at(total, finishSession);
 
     const tick = () => {
@@ -456,7 +456,7 @@
     }, 600);
   }
 
-  /* ---------- Ereignisse ---------- */
+  /* ---------- Events ---------- */
   el.start.addEventListener('click', startSession);
   el.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); startSession(); } });
   $$('#duration button').forEach((b) => {
@@ -485,10 +485,10 @@
   document.addEventListener('pointerdown', () => { if (el.body.dataset.phase === 'stay') backToSetup(false); }, true);
   addEventListener('resize', () => { movePill($('#duration')); movePill($('.lang')); });
 
-  // „Überrasch mich“-Kachel dreht ihren Farbverlauf langsam
+  // The "Surprise me" tile slowly rotates its gradient
   (function spin() { const tile = $('.tile.surprise'); if (tile) tile.style.setProperty('--spin', ((performance.now() / 60) % 360).toFixed(1) + 'deg'); requestAnimationFrame(spin); })();
 
-  // Erster Kontakt schaltet den Ton frei (Browser erlauben Ton erst nach einer Geste)
+  // First interaction unlocks audio (browsers only allow sound after a gesture)
   const unlock = () => {
     document.removeEventListener('pointerdown', unlock, true);
     document.removeEventListener('keydown', unlock, true);
@@ -499,7 +499,7 @@
 
   /* ---------- Start ---------- */
   try {
-    if (!window.THREE) throw new Error('Three.js nicht geladen');
+    if (!window.THREE) throw new Error('Three.js failed to load');
     W.init(el.world);
   } catch (e) {
     console.error(e);
