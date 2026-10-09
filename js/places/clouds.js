@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'wolken',
+  id: 'clouds',
   name: { de: 'Über den Wolken', en: 'Above the Clouds' },
   hint: { de: 'Langsam durch weiche Wolken gleiten', en: 'Gliding slowly through soft clouds' },
   sound: 'sky',

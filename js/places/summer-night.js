@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'sommernacht',
+  id: 'summer-night',
   name: { de: 'Sommernacht', en: 'Summer Night' },
   hint: { de: 'Glühwürmchen über der Wiese', en: 'Fireflies over the meadow' },
   sound: 'night',

@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'gewitter',
+  id: 'thunderstorm',
   name: { de: 'Gewitter', en: 'Thunderstorm' },
   hint: { de: 'Sicher beobachten, wie es draußen tobt', en: 'Watching the storm from a safe distance' },
   sound: 'storm',
@@ -31,7 +31,7 @@ ResetWorld.define({
     w.clouds({ count: 75, box: [520, 16, 420], center: [0, 46, -150], size: [60, 120], color: [0x3a4048, 0x2e343b, 0x4a5058], opacity: 0.95, drift: [3, 0, 0] });
     w.rain({ count: 4000, speed: 26, wind: [5, 0], opacity: 0.3 });
 
-    // Blitz: gezackte Linie + Lichtblitz
+    // Lightning: a jagged line plus a flash of light
     const strike = ({ near }) => {
       w.flash(near ? 3.2 : 1.5);
       const pts = [], x0 = w.rand(-110, 110), z0 = near ? w.rand(-70, -50) : w.rand(-180, -120);
@@ -49,7 +49,7 @@ ResetWorld.define({
       w.onFrame(fade);
     };
     w.on('lightning', strike);
-    // Ohne Ton blitzt es trotzdem ab und zu
+    // Without sound, lightning still strikes now and then
     w.every(14000, 30000, () => { if (!w.soundLive()) strike({ near: w.chance(0.4) }); }, 5000);
     w.camera({ pos: [0, g.heightAt(0, 10) + 1.7, 10], look: [0, 6, -100], drift: 0.15 });
   },

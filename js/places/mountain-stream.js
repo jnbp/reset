@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'bach',
+  id: 'mountain-stream',
   name: { de: 'Bergbach', en: 'Mountain Stream' },
   hint: { de: 'Klares Wasser zwischen Steinen', en: 'Clear water between the stones' },
   sound: 'stream',

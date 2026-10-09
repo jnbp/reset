@@ -1,10 +1,10 @@
-/* Reset – alle Texte (Deutsch / Englisch)
+/* Reset – all interface text (German / English)
  *
- * prompts  – Reflexionsfragen, nach Schritt im Bogen sortiert (benennen → prüfen → Zeit → Einfluss → Freundlichkeit)
- * facts    – Perspektiv-Fakten, nach Größenordnung sortiert (du → menschheit → erde → sonnensystem → milchstrasse → universum)
- * live     – Fakten mit Live-Zahlen; s = Sekunden seit Beginn, n() formatiert Zahlen
- * Ortsbezogene Fakten stehen in der Datei des Ortes (js/places/).
- * Neues einfach in die passende Liste schreiben, sonst muss nichts geändert werden.
+ * prompts  – reflection questions, grouped by step in the arc (name → check → time → control → kind)
+ * facts    – perspective facts, grouped by scale (you → humanity → earth → solar → galaxy → universe)
+ * live     – facts with live numbers; s = seconds since the start, n() formats numbers
+ * Place-specific facts live in each place file (js/places/).
+ * To add content, just add it to the matching list; nothing else needs to change.
  */
 (function () {
   const CITIES = {
@@ -49,7 +49,7 @@
       stayHint: 'Tippe irgendwo, um zurückzukehren.',
       noWebgl: 'Dein Browser kann die 3D-Orte leider nicht anzeigen. Der Ablauf funktioniert trotzdem.',
       fallbackThought: 'Dieser eine Gedanke …',
-      levels: { hier: 'Hier', du: 'Du', menschheit: 'Menschheit', erde: 'Erde', sonnensystem: 'Sonnensystem', milchstrasse: 'Milchstraße', universum: 'Universum' },
+      levels: { here: 'Hier', you: 'Du', humanity: 'Menschheit', earth: 'Erde', solar: 'Sonnensystem', galaxy: 'Milchstraße', universe: 'Universum' },
 
       prompts: {
         name: [
@@ -96,7 +96,7 @@
       },
 
       facts: {
-        du: [
+        you: [
           'In deinem Körper stecken rund 7 Quadrilliarden Atome, eine 7 mit 27 Nullen.',
           'Viele Atome in dir, etwa Kohlenstoff und Sauerstoff, entstanden einst im Inneren von Sternen.',
           'Das Eisen in deinem Blut wurde vor Milliarden Jahren in gewaltigen Sternexplosionen erzeugt.',
@@ -110,7 +110,7 @@
           'Dein Herz pumpt jeden Tag rund 7.000 Liter Blut, ohne dass du daran denken musst.',
           'Dein Gehirn braucht ungefähr so viel Energie wie eine 20-Watt-Lampe.',
         ],
-        menschheit: [
+        humanity: [
           'Über 8 Milliarden Menschen leben gerade, jeder mit eigenen Sorgen, Hoffnungen und Gedanken wie deinem.',
           'Insgesamt haben bisher rund 117 Milliarden Menschen auf der Erde gelebt.',
           'Jeden Tag werden weltweit etwa 365.000 Kinder geboren.',
@@ -123,7 +123,7 @@
           'Von den allermeisten Menschen, die je gelebt haben, kennen wir nicht einmal den Namen.',
           'Für die Erkenntnis, dass jeder Fremde ein Leben so voller Gedanken hat wie du, gibt es ein erfundenes Wort: Sonder.',
         ],
-        erde: [
+        earth: [
           'Die Erde ist rund 4,5 Milliarden Jahre alt.',
           'Wäre die Erdgeschichte ein einziger Tag, gäbe es Menschen erst seit den letzten sechs Sekunden.',
           'Auf dieser Tagesuhr passt die gesamte geschriebene Geschichte in die letzte Zehntelsekunde.',
@@ -138,7 +138,7 @@
           'In Mitteleuropa drehst du dich mit rund 1.000 km/h um die Erdachse, ohne es zu merken.',
           'Die Erde wiegt etwa 6 Trilliarden Tonnen und schwebt trotzdem frei durchs All.',
         ],
-        sonnensystem: [
+        solar: [
           'In die Sonne würden etwa 1,3 Millionen Erden passen.',
           'Die Sonne enthält rund 99,8 Prozent der gesamten Masse unseres Sonnensystems.',
           'Das Licht des Mondes braucht gut eine Sekunde bis zu dir, das der Sonne gut acht Minuten.',
@@ -151,7 +151,7 @@
           'Saturn hat eine geringere Dichte als Wasser.',
           'Bis zum nächsten Stern bräuchte Voyager 1 mehr als 70.000 Jahre.',
         ],
-        milchstrasse: [
+        galaxy: [
           'Unsere Milchstraße besteht aus rund 100 bis 400 Milliarden Sternen.',
           'Licht braucht etwa 100.000 Jahre, um die Milchstraße einmal zu durchqueren.',
           'Die Sonne braucht rund 230 Millionen Jahre für eine Runde um das Zentrum der Milchstraße.',
@@ -163,7 +163,7 @@
           'In einigen Milliarden Jahren wird die Milchstraße mit der Andromeda-Galaxie verschmelzen.',
           'Das Licht der Andromeda-Galaxie, das du heute sehen kannst, machte sich auf den Weg, als es die ersten Frühmenschen gab.',
         ],
-        universum: [
+        universe: [
           'Das Universum ist rund 13,8 Milliarden Jahre alt.',
           'Im beobachtbaren Universum gibt es Hunderte Milliarden, vielleicht Billionen Galaxien.',
           'Es gibt vermutlich mehr Sterne im Universum als Sandkörner an allen Stränden der Erde.',
@@ -178,19 +178,19 @@
       },
 
       live: {
-        du: [(s, n) => 'Seit du hier bist, hat dein Herz etwa ' + n(s * 1.2) + '-mal geschlagen, ganz von allein.'],
-        menschheit: [
+        you: [(s, n) => 'Seit du hier bist, hat dein Herz etwa ' + n(s * 1.2) + '-mal geschlagen, ganz von allein.'],
+        humanity: [
           (s, n) => 'Seit du begonnen hast, wurden auf der Welt etwa ' + n(s * 4.3) + ' Kinder geboren.',
           () => { const c = twoCities('de'); return 'In ' + c[0][0] + ' ist es gerade ' + clock('de', c[0][1]) + ' Uhr, in ' + c[1][0] + ' ' + clock('de', c[1][1]) + ' Uhr. Überall erleben Menschen gerade ihren ganz eigenen Moment.'; },
         ],
-        erde: [
+        earth: [
           (s, n) => 'Seit du hier bist, ist die Erde etwa ' + n(s * 29.8) + ' Kilometer weiter um die Sonne gereist.',
           (s, n) => 'In dieser Zeit sind auf der Erde rund ' + n(s * 45) + ' Blitze eingeschlagen.',
           (s, n) => 'Seit deinem Start sind weltweit rund ' + n(s * 16) + ' Millionen Tonnen Regen und Schnee gefallen.',
         ],
-        sonnensystem: [(s, n) => 'Die Sonne hat in dieser Zeit etwa ' + n(s * 4.3) + ' Millionen Tonnen ihrer Masse in Licht und Wärme verwandelt.'],
-        milchstrasse: [(s, n) => 'Seit du begonnen hast, ist unser Sonnensystem rund ' + n(s * 230) + ' Kilometer um das Zentrum der Milchstraße gerast.'],
-        universum: [(s, n) => 'Das Licht ist seit deinem Start schon rund ' + n(s * 0.3) + ' Millionen Kilometer weit gereist.'],
+        solar: [(s, n) => 'Die Sonne hat in dieser Zeit etwa ' + n(s * 4.3) + ' Millionen Tonnen ihrer Masse in Licht und Wärme verwandelt.'],
+        galaxy: [(s, n) => 'Seit du begonnen hast, ist unser Sonnensystem rund ' + n(s * 230) + ' Kilometer um das Zentrum der Milchstraße gerast.'],
+        universe: [(s, n) => 'Das Licht ist seit deinem Start schon rund ' + n(s * 0.3) + ' Millionen Kilometer weit gereist.'],
       },
     },
 
@@ -224,7 +224,7 @@
       stayHint: 'Tap anywhere to come back.',
       noWebgl: 'Your browser can’t display the 3D places. The exercise still works.',
       fallbackThought: 'This one thought …',
-      levels: { hier: 'Here', du: 'You', menschheit: 'Humanity', erde: 'Earth', sonnensystem: 'Solar system', milchstrasse: 'Milky Way', universum: 'Universe' },
+      levels: { here: 'Here', you: 'You', humanity: 'Humanity', earth: 'Earth', solar: 'Solar system', galaxy: 'Milky Way', universe: 'Universe' },
 
       prompts: {
         name: [
@@ -271,7 +271,7 @@
       },
 
       facts: {
-        du: [
+        you: [
           'Your body contains around 7 octillion atoms, a 7 followed by 27 zeros.',
           'Many atoms in you, such as carbon and oxygen, were once made inside stars.',
           'The iron in your blood was forged billions of years ago in huge stellar explosions.',
@@ -285,7 +285,7 @@
           'Your heart pumps around 7,000 litres of blood every day without you thinking about it.',
           'Your brain uses about as much energy as a 20-watt bulb.',
         ],
-        menschheit: [
+        humanity: [
           'More than 8 billion people are alive right now, each with worries, hopes and thoughts like yours.',
           'Around 117 billion people have lived on Earth so far.',
           'About 365,000 babies are born around the world every day.',
@@ -298,7 +298,7 @@
           'We don’t even know the names of almost all the people who have ever lived.',
           'There’s an invented word for realising that every stranger has a life as full of thoughts as yours: sonder.',
         ],
-        erde: [
+        earth: [
           'The Earth is around 4.5 billion years old.',
           'If Earth’s history were a single day, humans would have appeared only in the last six seconds.',
           'On that daily clock, all of written history fits into the last tenth of a second.',
@@ -313,7 +313,7 @@
           'In central Europe you spin around Earth’s axis at about 1,000 km/h without noticing.',
           'The Earth weighs about 6 sextillion tonnes and still floats freely through space.',
         ],
-        sonnensystem: [
+        solar: [
           'About 1.3 million Earths would fit inside the Sun.',
           'The Sun holds around 99.8 percent of all the mass in our solar system.',
           'Moonlight takes just over a second to reach you; sunlight just over eight minutes.',
@@ -326,7 +326,7 @@
           'Saturn is less dense than water.',
           'Voyager 1 would need more than 70,000 years to reach the nearest star.',
         ],
-        milchstrasse: [
+        galaxy: [
           'Our Milky Way contains around 100 to 400 billion stars.',
           'Light takes about 100,000 years to cross the Milky Way.',
           'The Sun takes around 230 million years to circle the centre of the Milky Way once.',
@@ -338,7 +338,7 @@
           'In a few billion years, the Milky Way will merge with the Andromeda galaxy.',
           'The light from Andromeda you can see today set off when the first early humans walked the Earth.',
         ],
-        universum: [
+        universe: [
           'The universe is about 13.8 billion years old.',
           'The observable universe holds hundreds of billions, maybe trillions, of galaxies.',
           'There are probably more stars in the universe than grains of sand on all of Earth’s beaches.',
@@ -353,19 +353,19 @@
       },
 
       live: {
-        du: [(s, n) => 'Since you arrived, your heart has beaten about ' + n(s * 1.2) + ' times, all by itself.'],
-        menschheit: [
+        you: [(s, n) => 'Since you arrived, your heart has beaten about ' + n(s * 1.2) + ' times, all by itself.'],
+        humanity: [
           (s, n) => 'Since you started, about ' + n(s * 4.3) + ' babies have been born around the world.',
           () => { const c = twoCities('en'); return 'Right now it’s ' + clock('en', c[0][1]) + ' in ' + c[0][0] + ' and ' + clock('en', c[1][1]) + ' in ' + c[1][0] + '. Everywhere, people are living their own moment.'; },
         ],
-        erde: [
+        earth: [
           (s, n) => 'Since you arrived, the Earth has travelled about ' + n(s * 29.8) + ' kilometres further around the Sun.',
           (s, n) => 'In that time, around ' + n(s * 45) + ' lightning bolts have struck the Earth.',
           (s, n) => 'Since you started, around ' + n(s * 16) + ' million tonnes of rain and snow have fallen worldwide.',
         ],
-        sonnensystem: [(s, n) => 'In that time the Sun has turned about ' + n(s * 4.3) + ' million tonnes of its mass into light and heat.'],
-        milchstrasse: [(s, n) => 'Since you began, our solar system has raced about ' + n(s * 230) + ' kilometres around the centre of the Milky Way.'],
-        universum: [(s, n) => 'Since you started, light has travelled around ' + n(s * 0.3) + ' million kilometres.'],
+        solar: [(s, n) => 'In that time the Sun has turned about ' + n(s * 4.3) + ' million tonnes of its mass into light and heat.'],
+        galaxy: [(s, n) => 'Since you began, our solar system has raced about ' + n(s * 230) + ' kilometres around the centre of the Milky Way.'],
+        universe: [(s, n) => 'Since you started, light has travelled around ' + n(s * 0.3) + ' million kilometres.'],
       },
     },
   };

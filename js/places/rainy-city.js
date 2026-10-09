@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'stadtregen',
+  id: 'rainy-city',
   name: { de: 'Regennacht', en: 'Rainy City Night' },
   hint: { de: 'Stadtlichter hinter nassem Glas', en: 'City lights behind wet glass' },
   sound: 'city',
@@ -25,7 +25,7 @@ ResetWorld.define({
     w.background(0x07090f);
     w.fog(0x0d1220, 0.0095);
     const camY = 25;
-    // Fassaden mit zufällig beleuchteten Fenstern
+    // Facades with randomly lit windows
     const facade = () => {
       const c = document.createElement('canvas'); c.width = 64; c.height = 128;
       const x = c.getContext('2d');
@@ -43,13 +43,13 @@ ResetWorld.define({
       b.position.set(w.rand(-170, 170), ht / 2 - 25, w.rand(-260, -70));
       w.add(b);
     }
-    // Lichterkreise (Bokeh) und Autolichter auf der Straße
+    // Light circles (bokeh) and car lights on the street
     const bokeh = w.particles({ count: 90, box: [70, 30, 40], center: [0, camY - 6, -40], colors: [0xffb46b, 0xff6b6b, 0x6bb8ff, 0xffe3a3], size: 5, opacity: 0.32, vel: [0, 0, 0], additive: true, twinkle: 0.25 });
     bokeh.material.opacity = 0.35;
     w.particles({ count: 40, box: [240, 0.5, 1], center: [0, -6, -62], color: 0xfff1d0, size: 2.2, opacity: 0.6, vel: [9, 0, 0], spread: 0.3, additive: true });
     w.particles({ count: 40, box: [240, 0.5, 1], center: [0, -6, -66], color: 0xff4a3a, size: 2.2, opacity: 0.6, vel: [-9, 0, 0], spread: 0.3, additive: true });
     w.rain({ count: 2500, box: [90, 70, 60], center: [0, camY - 10, -40], speed: 20, color: 0x8aa0c0, opacity: 0.18, wind: [1, 0], follow: false });
-    // Tropfen auf der Scheibe direkt vor dir
+    // Drops on the window right in front of you
     w.particles({ count: 260, box: [7, 4.5, 0.01], center: [0, camY, 4.2], colors: [0xbfd3ff, 0xffe3c0], size: 0.045, opacity: 0.55, vel: [0, -0.06, 0], spread: 0.95, sprite: 'dot' });
     w.camera({ pos: [0, camY, 6], look: [0, camY - 6, -100], drift: 0.05, speed: 0.05 });
   },

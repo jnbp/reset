@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'lagerfeuer',
+  id: 'campfire',
   name: { de: 'Lagerfeuer', en: 'Campfire' },
   hint: { de: 'Glut und Funken unter dem Sternenhimmel', en: 'Embers and sparks under the stars' },
   sound: 'fire',
@@ -33,7 +33,7 @@ ResetWorld.define({
     w.onFrame((dt, t) => { fireLight.intensity = 1.9 + Math.sin(t * 13) * 0.15 + Math.sin(t * 7.3) * 0.2 + w.noise(t * 2, 0) * 0.3; });
 
     const g = w.terrain({ size: 200, seg: 70, height: 1.2, scale: 0.04, shape: (x, z, n) => n * 1.2 * Math.min(1, Math.hypot(x, z) / 10), color: 0x2a2a22 });
-    // Steinring und Holzscheite
+    // Stone ring and logs
     const stone = new T.MeshPhongMaterial({ specular: 0x000000, shininess: 0, color: 0x5b5550, flatShading: true });
     for (let i = 0; i < 10; i++) {
       const a = (i / 10) * Math.PI * 2, m = new T.Mesh(new T.DodecahedronGeometry(w.rand(0.22, 0.32), 0), stone);
@@ -41,7 +41,7 @@ ResetWorld.define({
       w.add(m);
     }
     const wood = new T.MeshPhongMaterial({ specular: 0x000000, shininess: 0, color: 0x4a3020, flatShading: true });
-    // Scheite liegen sternförmig auf dem Boden
+    // Logs lie on the ground in a star shape
     for (let i = 0; i < 5; i++) {
       const a = (i / 5) * Math.PI * 2 + 0.3;
       const log = new T.Mesh(new T.CylinderGeometry(0.09, 0.11, 1.3, 6), wood);
@@ -50,7 +50,7 @@ ResetWorld.define({
       w.add(log);
     }
     w.add(new T.Mesh(new T.CircleGeometry(0.55, 16).rotateX(-Math.PI / 2).translate(0, 0.03, 0), new T.MeshBasicMaterial({ color: 0xff5a1a, transparent: true, opacity: 0.55 })));
-    // Flammen und Funken: Partikel mit Lebensdauer
+    // Flames and sparks: particles with a lifetime
     const makeFire = (count, size, life, speed, sparks) => {
       count = w.n(count);
       const pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
@@ -86,7 +86,7 @@ ResetWorld.define({
     makeFire(70, 0.07, [1.5, 3.5], [1.2, 2.6], true);
 
     w.trees({ count: 70, x: [-45, 45], z: [-45, 12], scale: [1.4, 2.6], heightAt: g.heightAt, crown: [0x0f1a18, 0x132220, 0x0c1513], trunk: 0x16110c, avoid: (x, z) => Math.hypot(x, z) < 11 || (z > 2 && Math.abs(x) < 14) });
-    // Feuer im unteren Bilddrittel, damit der Text frei bleibt
+    // Fire sits in the lower third so the text stays clear
     w.camera({ pos: [0, 1.7, 6.5], look: [0, 2.7, 0], drift: 0.08, speed: 0.1 });
   },
 });

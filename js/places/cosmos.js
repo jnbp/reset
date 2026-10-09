@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'kosmos',
+  id: 'cosmos',
   name: { de: 'Kosmos', en: 'Cosmos' },
   hint: { de: 'Schwerelos zwischen Sternen', en: 'Weightless among the stars' },
   sound: 'cosmos',
@@ -24,9 +24,9 @@ ResetWorld.define({
     const T = w.THREE;
     w.background(0x02030a);
     w.stars({ count: 1400, size: 1.1 });
-    // Sterne, durch die man langsam hindurchgleitet
+    // Stars you slowly glide through
     w.particles({ count: 2600, box: [300, 300, 420], center: [0, 0, -110], colors: [0xffffff, 0xcfe0ff, 0xffe9d0], size: 0.55, opacity: 0.55, vel: [0, 0, 6], spread: 0.5, sprite: 'dot', additive: true });
-    // Nebel in einer zufälligen Farbe
+    // Nebula in a random colour
     const hue = w.rand(0.5, 0.9);
     const neb = new T.Group();
     const cv = document.createElement('canvas'); cv.width = cv.height = 128;

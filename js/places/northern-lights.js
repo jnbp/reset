@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'nordlicht',
+  id: 'northern-lights',
   name: { de: 'Nordlicht', en: 'Northern Lights' },
   hint: { de: 'Arktische Nacht über verschneiter Ebene', en: 'Arctic night over a snowy plain' },
   sound: 'arctic',

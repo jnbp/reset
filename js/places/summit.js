@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'gipfel',
+  id: 'summit',
   name: { de: 'Berggipfel', en: 'Summit' },
   hint: { de: 'Sonnenaufgang über dem Wolkenmeer', en: 'Sunrise above a sea of clouds' },
   sound: 'wind',

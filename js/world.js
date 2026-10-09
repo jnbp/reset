@@ -1,14 +1,14 @@
-/* Reset – 3D-Welt und Baukasten für Orte
+/* Reset – 3D world and toolkit for places
  *
- * Ein Ort ist eine Datei in js/places/ und ruft ResetWorld.define({...}) auf.
- * Innerhalb von build(w) stehen die Helfer unten bereit (w.sky, w.terrain, w.trees, w.particles, …).
- * Siehe README.md → „Einen neuen Ort hinzufügen“.
+ * Each place is a file in js/places/ that calls ResetWorld.define({...}).
+ * Inside build(w) the helpers below are available (w.sky, w.terrain, w.trees, w.particles, …).
+ * See README.md → "Adding a place".
  */
 (function (global) {
   'use strict';
   const THREE = global.THREE;
 
-  /* ---------- Zufall & Rauschen ---------- */
+  /* ---------- Randomness & noise ---------- */
   const rand = (a = 0, b = 1) => a + Math.random() * (b - a);
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const chance = (p) => Math.random() < p;
@@ -34,7 +34,7 @@
   let noise2 = makeSimplex();
   const fbm = (x, y, oct = 4) => { let a = 1, f = 1, s = 0, n = 0; for (let i = 0; i < oct; i++) { s += a * noise2(x * f, y * f); n += a; a *= 0.5; f *= 2; } return s / n; };
 
-  /* ---------- Texturen (einmal erzeugt, wiederverwendet) ---------- */
+  /* ---------- Textures (created once, reused) ---------- */
   const texCache = {};
   function canvasTex(key, size, draw) {
     if (texCache[key]) return texCache[key];
@@ -75,7 +75,7 @@
     }),
   };
 
-  /* ---------- Zustand ---------- */
+  /* ---------- State ---------- */
   const places = [];
   let renderer, scene, camera, clock, canvas;
   let frameFns = [], cleanups = [], current = null, elapsed = 0;
@@ -83,7 +83,7 @@
   const low = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || Math.min(innerWidth, innerHeight) < 600;
   const quality = low ? 0.55 : 1;
 
-  /* ---------- Baukasten ---------- */
+  /* ---------- Toolkit ---------- */
   const C = (c) => (c instanceof THREE.Color ? c : new THREE.Color(c));
 
   function makeKit(def) {
@@ -118,7 +118,7 @@
         return out;
       },
 
-      // Farbverlauf-Himmel, der immer um die Kamera liegt
+      // Gradient sky that always surrounds the camera
       sky({ top, mid, bottom, exponent = 0.6, below } = {}) {
         const uniforms = { top: { value: C(top) }, mid: { value: C(mid || top) }, bottom: { value: C(bottom || mid || top) }, below: { value: C(below || bottom || mid || top) }, exponent: { value: exponent } };
         const mat = new THREE.ShaderMaterial({
@@ -171,7 +171,7 @@
         return pts;
       },
 
-      // Leuchtende Scheibe: Sonne, Mond, Lichter
+      // Glowing disc: sun, moon, lights
       glow({ pos = [0, 50, -300], color = 0xffffff, size = 40, glow = 3, core = 1, coreColor } = {}) {
         const group = new THREE.Group();
         const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: textures.soft(), color: C(color), blending: THREE.AdditiveBlending, depthWrite: false, fog: false, transparent: true, opacity: 0.6 }));
@@ -188,7 +188,7 @@
         return group;
       },
 
-      // Gelände aus Rauschen; shape(x, z, n) formt die Höhe, colorAt(h, x, z) färbt
+      // Terrain from noise; shape(x, z, n) shapes the height, colorAt(h, x, z) colours it
       terrain({ size = 200, seg = 100, y = 0, height = 4, scale = 0.03, octaves = 4, color = 0x6a9a50, colorAt = null, shape = null, flat = true, sizeZ } = {}) {
         seg = Math.max(24, Math.round(seg * (low ? 0.7 : 1)));
         const geo = new THREE.PlaneGeometry(size, sizeZ || size, seg, seg);
@@ -212,7 +212,7 @@
         return { mesh, heightAt };
       },
 
-      // Bewegte Wasserfläche (Low-Poly mit Glanz)
+      // Moving water surface (low poly with highlights)
       water({ size = 400, seg = 90, y = 0, color = 0x2a6f97, specular = 0x666666, shininess = 60, opacity = 1, waves = [[1, 0.3, 0.25, 9, 1], [0.4, 1, 0.18, 6, 1.3], [-0.6, 0.8, 0.08, 3, 2]], flow = [0, 0], sizeZ, emissive = 0x000000 } = {}) {
         seg = Math.round(seg * (low ? 0.6 : 1));
         const geo = new THREE.PlaneGeometry(size, sizeZ || size, seg, seg);
@@ -237,7 +237,7 @@
         return mesh;
       },
 
-      // Partikel: Schnee, Blasen, Pollen, Glühwürmchen, Funken, Blüten …
+      // Particles: snow, bubbles, pollen, fireflies, sparks, petals …
       particles({ count = 500, box = [40, 20, 40], center = [0, 10, 0], color = 0xffffff, colors = null, size = 0.2, opacity = 0.8, vel = [0, -1, 0], spread = 0.4, wobble = 0, wobbleSpeed = 1, sprite = 'soft', additive = false, attenuate = true, twinkle = 0, follow = false } = {}) {
         count = w.n(count);
         const pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
@@ -281,7 +281,7 @@
         return pts;
       },
 
-      // Regen als feine Striche
+      // Rain as fine streaks
       rain({ count = 3000, box = [60, 30, 60], center = [0, 10, 0], speed = 22, length = 0.7, color = 0xb8cce0, opacity = 0.35, wind = [2, 0], follow = true } = {}) {
         count = w.n(count);
         const pos = new Float32Array(count * 6), sp = new Float32Array(count);
@@ -312,7 +312,7 @@
         return lines;
       },
 
-      // Bäume als instanzierte Low-Poly-Formen: pine, round, blossom, palm
+      // Trees as instanced low-poly shapes: pine, round, blossom, palm
       trees({ count = 40, x = [-30, 30], z = [-40, -5], kind = 'pine', scale = [0.8, 1.4], heightAt = null, trunk = 0x6b4a32, crown = [0x2f6b3a, 0x3d7d44, 0x285c33], avoid = null } = {}) {
         count = w.n(count);
         const spots = [];
@@ -380,7 +380,7 @@
         return inst;
       },
 
-      // Material, das sich im Wind wiegt (Gras, Weizen, Seetang)
+      // Material that sways in the wind (grass, wheat, seaweed)
       swayMaterial({ color = 0xffffff, height = 1, amp = 0.15, speed = 1.5, freq = 0.15, side = THREE.DoubleSide } = {}) {
         const mat = new THREE.MeshLambertMaterial({ color: C(color), side });
         const u = { uTime: { value: 0 }, uHeight: { value: height }, uAmp: { value: amp }, uSpeed: { value: speed }, uFreq: { value: freq } };
@@ -424,7 +424,7 @@
         return inst;
       },
 
-      // Weiche Wolken- oder Nebelschwaden aus Sprites
+      // Soft clouds or mist made of sprites
       clouds({ count = 60, box = [200, 20, 200], center = [0, 30, -50], size = [30, 60], color = 0xffffff, opacity = 0.8, drift = [1, 0, 0], fog = true, fadeNear = 0 } = {}) {
         count = w.n(count);
         const group = new THREE.Group();
@@ -454,7 +454,7 @@
         return group;
       },
 
-      // Lichtstrahlen (Wald, Unterwasser)
+      // Light rays (forest, underwater)
       rays({ count = 8, x = [-15, 15], z = [-25, -5], top = 25, length = 40, width = [1, 3], color = 0xfff1c4, opacity = 0.08, tilt = [0.2, 0.1], sway = 0.03 } = {}) {
         const group = new THREE.Group();
         const mats = [];
@@ -475,7 +475,7 @@
         return group;
       },
 
-      // Kamera mit sanftem Schweben
+      // Camera with a gentle floating drift
       camera({ pos = [0, 2, 8], look = [0, 1, 0], fov = 60, drift = 0.15, speed = 0.12, move = null } = {}) {
         camera.fov = fov; camera.updateProjectionMatrix();
         const base = new THREE.Vector3(...pos), target = new THREE.Vector3(...look);
@@ -491,7 +491,7 @@
         });
       },
 
-      // kurzer Lichtblitz über die ganze Szene
+      // short flash of light across the whole scene
       flash(intensity = 2.5, color = 0xdfe8ff) {
         if (!flashLight) { flashLight = new THREE.AmbientLight(0xffffff, 0); scene.add(flashLight); }
         flashLight.color = C(color);
@@ -501,7 +501,7 @@
     return w;
   }
 
-  /* ---------- Szenenverwaltung ---------- */
+  /* ---------- Scene management ---------- */
 
   function dispose() {
     cleanups.forEach((fn) => { try { fn(); } catch (e) {} });
@@ -522,7 +522,7 @@
     renderer.setSize(innerWidth, innerHeight);
   }
 
-  // Kamerafahrt der App (0 = normal, 1 = ganz zurückgezogen), wird nur zum Zeichnen aufaddiert
+  // App-driven camera pull (0 = normal, 1 = fully pulled back), applied only while rendering
   const pull = { from: 0, to: 0, t0: 0, dur: 1, value: 0 };
   const ease = (x) => 0.5 - Math.cos(Math.PI * Math.min(1, Math.max(0, x))) / 2;
 
@@ -546,7 +546,7 @@
     define(def) { if (!places.some((p) => p.id === def.id)) places.push(def); },
     get(id) { return places.find((p) => p.id === id); },
     get current() { return current; },
-    // Kamera sanft zurückziehen (to = 0…1) über seconds Sekunden
+    // Gently pull the camera back (to = 0…1) over `seconds` seconds
     pull(to, seconds = 3, from) {
       pull.from = from != null ? from : pull.value;
       pull.to = to; pull.t0 = performance.now(); pull.dur = Math.max(1, seconds * 1000);
@@ -562,7 +562,7 @@
       addEventListener('resize', onResize);
       loop();
     },
-    // Baut einen Ort; gibt { def, ui, themeColor } zurück
+    // Builds a place; returns { def, ui, themeColor }
     show(id) {
       const def = this.get(id) || places[0];
       dispose();

@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'schnee',
+  id: 'snowy-forest',
   name: { de: 'Schneewald', en: 'Snowy Forest' },
   hint: { de: 'Leiser Schneefall, gedämpfte Welt', en: 'Quiet snowfall, a muffled world' },
   sound: 'snow',
@@ -35,7 +35,7 @@ ResetWorld.define({
     const g = w.terrain({ size: 220, seg: 90, height: 3, scale: 0.02, color: 0xf4f7fb });
     w.trees({ kind: 'pine', count: 95, x: [-70, 70], z: [-100, -5], scale: [1.2, 2.4], heightAt: g.heightAt, avoid: (x) => Math.abs(x) < 3, crown: [0x5d7a6e, 0x6f8c80, 0xdfe8ee, 0xc9d8de], trunk: 0x4a3a30 });
     if (blue) {
-      // eine kleine Hütte mit warmem Fensterlicht
+      // a small hut with warm light in the window
       const hx = 11, hz = -24, hy = g.heightAt(hx, hz);
       const hut = new T.Mesh(new T.BoxGeometry(4, 2.6, 3.2), new T.MeshPhongMaterial({ specular: 0x000000, shininess: 0, color: 0x4a3426, flatShading: true }));
       hut.position.set(hx, hy + 1.3, hz); hut.rotation.y = -0.4;

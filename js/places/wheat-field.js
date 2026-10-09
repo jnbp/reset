@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'weizenfeld',
+  id: 'wheat-field',
   name: { de: 'Weizenfeld', en: 'Wheat Field' },
   hint: { de: 'Goldene Halme im Abendwind', en: 'Golden stalks in the evening breeze' },
   sound: 'meadow',

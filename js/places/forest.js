@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'wald',
+  id: 'forest',
   name: { de: 'Wald am Morgen', en: 'Morning Forest' },
   hint: { de: 'Sonnenstrahlen zwischen den Bäumen', en: 'Sunbeams between the trees' },
   sound: 'forest',

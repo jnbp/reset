@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'unterwasser',
+  id: 'underwater',
   name: { de: 'Unterwasser', en: 'Underwater' },
   hint: { de: 'Lichtspiel am Meeresgrund', en: 'Dancing light on the seabed' },
   sound: 'underwater',
@@ -27,7 +27,7 @@ ResetWorld.define({
     w.lights({ ambient: [0x5aa0bd, 0.45], hemi: [0x8fd6f0, 0x0a2a3a, 0.4] });
     const floorY = -6;
     const g = w.terrain({ size: 200, seg: 90, y: floorY, height: 2.5, scale: 0.04, colorAt: (h) => (h > 0.6 ? 0xb8a984 : 0xa49572) });
-    // Lichtnetz (Kaustik) auf dem Boden
+    // Light patterns (caustics) on the seabed
     const u = { uTime: { value: 0 } };
     g.mesh.material.onBeforeCompile = (shader) => {
       shader.uniforms.uTime = u.uTime;
@@ -44,7 +44,7 @@ ResetWorld.define({
     w.particles({ count: 900, box: [50, 30, 50], center: [0, 0, -10], color: 0xbfe8f0, size: 0.04, opacity: 0.4, vel: [0.1, -0.1, 0], wobble: 0.2, sprite: 'dot' });
     w.rays({ count: 10, x: [-25, 25], z: [-40, -5], top: 28, length: 50, width: [2, 5], color: 0x9fe8ff, opacity: 0.06, tilt: [0.15, 0.05] });
 
-    // Fischschwärme
+    // Schools of fish
     const fishGeo = new T.ConeGeometry(0.09, 0.4, 4).rotateZ(-Math.PI / 2);
     const fishMat = new T.MeshPhongMaterial({ specular: 0x000000, shininess: 0, flatShading: true });
     const schools = [];

@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'wueste',
+  id: 'desert',
   name: { de: 'Wüste', en: 'Desert' },
   hint: { de: 'Endlose Dünen, warmes Licht', en: 'Endless dunes, warm light' },
   sound: 'desert',

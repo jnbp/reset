@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'regenwald',
+  id: 'rainforest',
   name: { de: 'Regenwald', en: 'Rainforest' },
   hint: { de: 'Warmer Regen im dichten Grün', en: 'Warm rain in deep green' },
   sound: 'jungle',

@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'strand',
+  id: 'beach',
   name: { de: 'Strand', en: 'Beach' },
   hint: { de: 'Wellen, Sand und weiter Horizont', en: 'Waves, sand and an open horizon' },
   sound: 'ocean',

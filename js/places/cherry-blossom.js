@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'kirschbluete',
+  id: 'cherry-blossom',
   name: { de: 'Kirschblüte', en: 'Cherry Blossom' },
   hint: { de: 'Blütenblätter über einem stillen Teich', en: 'Petals drifting over a still pond' },
   sound: 'garden',

@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'whiteroom',
+  id: 'white-room',
   name: { de: 'White Room', en: 'White Room' },
   hint: { de: 'Klare Formen, nichts lenkt ab', en: 'Clear shapes, nothing to distract' },
   sound: 'room',

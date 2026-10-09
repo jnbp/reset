@@ -1,5 +1,5 @@
 ResetWorld.define({
-  id: 'tiefsee',
+  id: 'deep-sea',
   name: { de: 'Tiefsee', en: 'Deep Sea' },
   hint: { de: 'Leuchtende Quallen im Dunkeln', en: 'Glowing jellyfish in the dark' },
   sound: 'deep',
