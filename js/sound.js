@@ -1,7 +1,7 @@
-/* Reset – Klanglandschaften
- * Alle Sounds werden live im Browser mit der Web Audio API erzeugt (keine Audiodateien).
- * Neue Klangwelt hinzufügen:  ResetSound.define('id', { level, send, build(s) { ... } })
- * Innerhalb von build() stehen die Helfer der Klasse Scene zur Verfügung (noise, filter, walk, loop, …).
+/* Reset – soundscapes
+ * All sound is generated live in the browser with the Web Audio API (no audio files).
+ * Add a soundscape:  ResetSound.define('id', { level, send, build(s) { ... } })
+ * Inside build() you can use the helpers of the Scene class (noise, filter, walk, loop, …).
  */
 (function (global) {
   'use strict';
@@ -18,13 +18,13 @@
   const listeners = {};
   const emit = (name, data) => (listeners[name] || []).forEach((fn) => fn(data));
 
-  /* ---------- Grundbausteine ---------- */
+  /* ---------- Building blocks ---------- */
 
-  // Nahtlos loopbarer Stereo-Rauschpuffer (white / pink / brown)
+  // Seamlessly looping stereo noise buffer (white / pink / brown)
   function makeNoise(type, seconds) {
     const sr = ctx.sampleRate;
     const len = Math.floor(sr * seconds);
-    const xf = Math.floor(sr * 0.25); // Überblendung am Loop-Punkt
+    const xf = Math.floor(sr * 0.25); // crossfade at the loop point
     const buf = ctx.createBuffer(2, len, sr);
     for (let ch = 0; ch < 2; ch++) {
       const raw = new Float32Array(len + xf);
@@ -50,7 +50,7 @@
     return buf;
   }
 
-  // Künstlicher Hallraum
+  // Synthetic reverb
   function makeImpulse(seconds, decay) {
     const sr = ctx.sampleRate, len = Math.floor(sr * seconds);
     const buf = ctx.createBuffer(2, len, sr);
@@ -79,7 +79,7 @@
     return ctx;
   }
 
-  /* ---------- Szene: Container für eine laufende Klangwelt ---------- */
+  /* ---------- Scene: container for a running soundscape ---------- */
 
   class Scene {
     constructor(send) {
@@ -106,7 +106,7 @@
     }
     gain(v = 1) { const g = ctx.createGain(); g.gain.value = v; return g; }
     pan(v = 0) { const p = ctx.createStereoPanner(); p.pan.value = v; return p; }
-    // verbindet Knoten der Reihe nach; letzter Knoten ohne Ziel geht auf den Szenen-Bus
+    // connects nodes in order; out() routes the last node to the scene bus
     chain(...nodes) {
       for (let i = 0; i < nodes.length - 1; i++) nodes[i].connect(nodes[i + 1]);
       return nodes[nodes.length - 1];
@@ -116,19 +116,19 @@
       const id = setTimeout(() => { this.timers.delete(id); if (this.alive) fn(); }, ms);
       this.timers.add(id);
     }
-    // wiederkehrendes Ereignis in zufälligen Abständen
+    // recurring event at random intervals
     loop(minMs, maxMs, fn, firstMs) {
       const tick = () => { fn(); this.after(rand(minMs, maxMs), tick); };
       this.after(firstMs != null ? firstMs : rand(minMs, maxMs), tick);
     }
-    // Parameter wandert langsam und organisch zwischen min und max
+    // parameter drifts slowly and organically between min and max
     walk(param, min, max, minMs, maxMs) {
       param.value = rand(min, max);
       this.loop(minMs, maxMs, () => {
         param.setTargetAtTime(rand(min, max), ctx.currentTime, rand(minMs, maxMs) / 3000);
       });
     }
-    // kurzer Rauschimpuls (Tropfen, Knacken, Donner …); nodes = Kette bis zum Bus
+    // short noise burst (drops, crackles, thunder …); nodes = chain up to the bus
     burst(type, dur, nodes, at = 0) {
       const s = ctx.createBufferSource(); s.buffer = buffers[type];
       const t = ctx.currentTime + at;
@@ -137,7 +137,7 @@
       s.onended = () => { s.disconnect(); nodes.forEach((n) => n.disconnect()); };
       return t;
     }
-    // kurzer Ton mit Hüllkurve; shape(freqParam, t) setzt Tonhöhenverlauf
+    // short tone with an envelope; shape(freqParam, t) sets the pitch curve
     tone(type, dur, nodes, shape, at = 0) {
       const o = ctx.createOscillator(); o.type = type;
       const t = ctx.currentTime + at;
@@ -167,7 +167,7 @@
     }
   }
 
-  /* ---------- Wiederverwendbare Schichten ---------- */
+  /* ---------- Reusable layers ---------- */
 
   const layers = {
     rain(s, amount = 1) {
@@ -177,7 +177,7 @@
       s.walk(lp.frequency, 5000, 8000, 2000, 5000);
       s.walk(g.gain, 0.24 * amount, 0.38 * amount, 3000, 7000);
       s.out(s.noise('brown'), s.filter('lowpass', 260), s.gain(0.22 * amount));
-      // einzelne Tropfen
+      // single drops
       s.loop(12 / amount, 55 / amount, () => {
         const t = s.now;
         s.burst('white', 0.03, [
@@ -186,7 +186,7 @@
           s.pan(rand(-1, 1)),
         ]);
       }, 0);
-      // Tropfen in Pfützen
+      // drops in puddles
       s.loop(250, 1300, () => {
         const t = s.now, f = rand(1400, 3200);
         s.tone('sine', 0.12, [s.envGain(t, 0.003, rand(0.02, 0.06), rand(0.05, 0.1)), s.pan(rand(-0.8, 0.8))],
@@ -234,7 +234,7 @@
               (fr, t) => { fr.setValueAtTime(f0, t); fr.linearRampToValueAtTime(f0 * 0.85, t + 0.03); }, at);
             at += 0.045;
           }
-        } else { // warble – melodische Phrase mit Vibrato
+        } else { // warble – melodic phrase with vibrato
           const d = rand(0.8, 1.4), f = rand(2200, 3200);
           s.tone('sine', d, [s.envGain(s.now, 0.08, vol, d), s.filter('lowpass', lpf), s.pan(panv)],
             (fr, t, o) => {
@@ -261,7 +261,7 @@
         }, rand(0, 800));
       }
     },
-    // lange, weiche Obertöne (Kosmos, Polarlicht, Himmel)
+    // long, soft overtones (cosmos, aurora, sky)
     shimmer(s, notes, minMs = 3000, maxMs = 9000, vol = 1) {
       s.loop(minMs, maxMs, () => {
         const t = s.now, d = rand(6, 10), f = pick(notes);
@@ -272,7 +272,7 @@
         s.tone('sine', d, [g, s.pan(rand(-0.8, 0.8))], (fr, tt) => fr.setValueAtTime(f, tt));
       }, 1500);
     },
-    // Windspiel: Glockentöne mit unharmonischem Oberton
+    // wind chimes: bell tones with an inharmonic overtone
     chimes(s, minMs = 4000, maxMs = 11000, vol = 1) {
       const notes = [1046.5, 1174.7, 1396.9, 1568, 1760, 2093];
       s.loop(minMs, maxMs, () => {
@@ -297,7 +297,7 @@
         });
       });
     },
-    // Unterwasser-Grundrauschen
+    // underwater rumble
     deepwater(s, low = 150, high = 360, vol = 1) {
       const lp = s.filter('lowpass', 240);
       const g = s.gain(0.55 * vol);
@@ -330,7 +330,7 @@
     },
   };
 
-  /* ---------- Klangwelten ---------- */
+  /* ---------- Soundscapes ---------- */
 
   const define = (id, def) => { defs[id] = def; };
 
@@ -341,7 +341,7 @@
     build(s) {
       layers.rain(s, 1.5);
       layers.wind(s, 0.6, 200, 600);
-      // Blitz zuerst (Ereignis für die Grafik), Donner je nach Entfernung später
+      // lightning first (event for the visuals), thunder later depending on distance
       const strike = () => {
         const near = Math.random() < 0.4;
         emit('lightning', { near });
@@ -356,7 +356,7 @@
         const peak = near ? 1.1 : 0.6;
         g.gain.setValueAtTime(0.0001, t);
         g.gain.exponentialRampToValueAtTime(peak, t + (near ? 0.05 : 0.6));
-        // Grollen in mehreren Wellen
+        // rumble in several waves
         let tt = t + 0.8;
         for (let k = 0; k < 4; k++) { g.gain.setTargetAtTime(peak * rand(0.3, 0.8), tt, 0.4); tt += rand(0.6, 1.4); }
         g.gain.setTargetAtTime(0.0001, tt, 1.6);
@@ -446,7 +446,7 @@
       s.walk(bp.frequency, 2200, 4500, 3000, 7000);
       s.out(s.noise('brown'), s.filter('lowpass', 350), s.gain(0.06));
       layers.birds(s, 1);
-      // Kuckuck in der Ferne
+      // distant cuckoo
       s.loop(18000, 40000, () => {
         const reps = Math.floor(rand(2, 5));
         for (let i = 0; i < reps; i++) {
@@ -480,13 +480,12 @@
     },
   });
 
-
   define('night', {
     level: 0.9, send: 0.3,
     build(s) {
       s.out(s.noise('pink'), s.filter('bandpass', 700, 0.8), s.gain(0.05));
       layers.crickets(s, 4);
-      // Eule
+      // owl
       s.loop(15000, 35000, () => {
         [0, 0.55, 0.85].forEach((at, i) => {
           const d = i === 0 ? 0.45 : 0.25;
@@ -544,19 +543,19 @@
   define('city', {
     level: 0.9, send: 0.2,
     build(s) {
-      // Regen hinter Glas: gedämpft
+      // rain behind glass: muffled
       const glass = s.filter('lowpass', 2500);
       glass.connect(s.bus);
       const lp = s.filter('lowpass', 5000);
       s.chain(s.noise('pink'), s.filter('highpass', 300), lp, s.gain(0.3)).connect(glass);
       s.walk(lp.frequency, 3000, 5500, 3000, 6000);
-      s.out(s.noise('brown'), s.filter('lowpass', 110), s.gain(0.35)); // Stadtrauschen
-      // Tropfen gegen die Scheibe
+      s.out(s.noise('brown'), s.filter('lowpass', 110), s.gain(0.35)); // city hum
+      // drops against the window
       s.loop(40, 180, () => {
         const t = s.now;
         s.burst('white', 0.02, [s.filter('bandpass', rand(1200, 3500), 3), s.envGain(t, 0.002, rand(0.03, 0.15), 0.02), s.pan(rand(-0.9, 0.9))]);
       }, 0);
-      // vorbeifahrende Autos auf nasser Straße
+      // cars passing on a wet road
       s.loop(5000, 14000, () => {
         const t = s.now, d = rand(3, 5.5), dir = Math.random() < 0.5 ? -1 : 1;
         const p = s.pan(-dir);
@@ -580,7 +579,7 @@
     build(s) {
       layers.rain(s, 0.55);
       layers.birds(s, 1.4);
-      // Zikaden
+      // cicadas
       const bp = s.filter('bandpass', 6200, 12);
       const am = s.gain(0.5);
       const g = s.gain(0.03);
@@ -589,7 +588,7 @@
       const lfoG = s.gain(0.5);
       s.chain(lfo, lfoG).connect(am.gain);
       s.walk(g.gain, 0.0, 0.05, 3000, 9000);
-      // Frösche
+      // frogs
       s.loop(1500, 5000, () => {
         const f = rand(260, 520), p = rand(-0.8, 0.8), n = Math.floor(rand(2, 4));
         for (let i = 0; i < n; i++) {
@@ -617,7 +616,7 @@
     build(s) {
       layers.wind(s, 0.3, 150, 400);
       s.out(s.noise('brown'), s.filter('lowpass', 200), s.gain(0.08));
-      // Schnee rutscht von einem Ast
+      // snow sliding off a branch
       s.loop(9000, 22000, () => {
         const t = s.now;
         s.burst('brown', 1.6, [s.filter('lowpass', 700), s.envGain(t, 0.05, rand(0.08, 0.18), 1.4), s.pan(rand(-0.7, 0.7))]);
@@ -664,7 +663,7 @@
     },
   });
 
-  /* ---------- Öffentliche Schnittstelle ---------- */
+  /* ---------- Public API ---------- */
 
   const ResetSound = {
     define,
